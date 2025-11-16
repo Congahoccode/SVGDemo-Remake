@@ -2,29 +2,67 @@
 #include "SVGElement.h"
 
 void SVGElement::Parse(xml_node<>* node) {
-	if (auto attr = node->first_attribute("fill")) {
-		string fillStr = attr->value();
-		if (fillStr == "none") fillColor = Color(0, 0, 0, 0);
-		else {
-			int r = 0, g = 0, b = 0;
-			if (sscanf_s(fillStr.c_str(), "#%02x%02x%02x", &r, &g, &b) == 3) fillColor = Color(255, r, g, b);
-		}
-	}
-	if (auto attr = node->first_attribute("fill-opacity")) {
-		fillOpacity = atof(attr->value());
-	}
-	if (auto attr = node->first_attribute("stroke-width")) {
-		strokeWidth = stof(attr->value());
-	}
-	if (auto attr = node->first_attribute("stroke")) {
-		string strokeStr = attr->value();
-		if (strokeStr == "none") strokeColor = Color(0, 0, 0, 0);
-		else {
-			int r = 0, g = 0, b = 0;
-			if (sscanf_s(strokeStr.c_str(), "#%02x%02x%02x", &r, &g, &b) == 3) strokeColor = Color(255, r, g, b);
-		}
-	}
-	if (auto attr = node->first_attribute("stroke-opacity")) {
-		strokeOpacity = atof(attr->value());
-	}
+
+    // --- fill ---
+    if (auto attr = node->first_attribute("fill")) {
+        string s = attr->value();
+
+        if (s == "none") {
+            fillColor = Color(0, 0, 0, 0);
+        }
+        else if (s.rfind("rgb(", 0) == 0) {     // parse rgb(r,g,b)
+            int r, g, b;
+            sscanf_s(s.c_str(), "rgb(%d,%d,%d)", &r, &g, &b);
+            fillColor = Color((BYTE)(fillOpacity * 255), r, g, b);
+        }
+        else if (s[0] == '#') {                // parse #RRGGBB
+            int r, g, b;
+            sscanf_s(s.c_str() + 1, "%02x%02x%02x", &r, &g, &b);
+            fillColor = Color((BYTE)(fillOpacity * 255), r, g, b);
+        }
+    }
+
+    // --- fill-opacity ---
+    if (auto attr = node->first_attribute("fill-opacity")) {
+        fillOpacity = atof(attr->value());
+
+        // cập nhật alpha của fillColor
+        fillColor = Color((BYTE)(fillOpacity * 255),
+            fillColor.GetR(),
+            fillColor.GetG(),
+            fillColor.GetB());
+    }
+
+    // --- stroke ---
+    if (auto attr = node->first_attribute("stroke")) {
+        string s = attr->value();
+
+        if (s == "none") {
+            strokeColor = Color(0, 0, 0, 0);
+        }
+        else if (s.rfind("rgb(", 0) == 0) {
+            int r, g, b;
+            sscanf_s(s.c_str(), "rgb(%d,%d,%d)", &r, &g, &b);
+            strokeColor = Color((BYTE)(strokeOpacity * 255), r, g, b);
+        }
+        else if (s[0] == '#') {
+            int r, g, b;
+            sscanf_s(s.c_str() + 1, "%02x%02x%02x", &r, &g, &b);
+            strokeColor = Color((BYTE)(strokeOpacity * 255), r, g, b);
+        }
+    }
+
+    // --- stroke-opacity ---
+    if (auto attr = node->first_attribute("stroke-opacity")) {
+        strokeOpacity = atof(attr->value());
+        strokeColor = Color((BYTE)(strokeOpacity * 255),
+            strokeColor.GetR(),
+            strokeColor.GetG(),
+            strokeColor.GetB());
+    }
+
+    // --- stroke-width ---
+    if (auto attr = node->first_attribute("stroke-width")) {
+        strokeWidth = atof(attr->value());
+    }
 }
