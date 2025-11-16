@@ -25,5 +25,15 @@ void SVGText::Draw(Graphics& g) {
     SolidBrush brush(fillColor);
     FontFamily family(fontFamily.c_str());
     Font font(&family, fontSize, FontStyleRegular, UnitPixel);
-    g.DrawString(content.c_str(), -1, &font, PointF(x, y), &brush);
+
+    // SVG dùng baseline, GDI+ dùng top-left
+    REAL ascent = family.GetCellAscent(FontStyleRegular);
+    REAL em = family.GetEmHeight(FontStyleRegular);
+    REAL ascentPx = fontSize * ascent / em;
+
+    // GDI+ muốn y_top = y_baseline - ascentPx
+    REAL yTop = y - ascentPx;   
+
+    g.DrawString(content.c_str(), -1, &font, PointF(x, yTop), &brush);
 }
+
