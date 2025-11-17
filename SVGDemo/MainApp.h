@@ -8,7 +8,6 @@
 #include "SVGElement.h"
 
 
-// ✅ Khai báo trước (forward declaration) để tránh lỗi Gdiplus chưa định nghĩa
 namespace Gdiplus {
     class Graphics;
 }
@@ -16,9 +15,9 @@ namespace Gdiplus {
 class MainApp
 {
 private:
-    SVGParser parser;                    // Bộ phân tích SVG
-    SVGRenderer renderer;                // Bộ kết xuất GDI+
-    std::vector<SVGElement*> elements;   // Danh sách các phần tử SVG
+    SVGParser parser;
+    SVGRenderer renderer;
+    std::vector<SVGElement*> elements;
 
 public:
     MainApp() = default;

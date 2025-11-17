@@ -1,8 +1,8 @@
 ﻿#include "stdafx.h"
-#include <windows.h>      // Must be included before GDI+ headers
-#include <gdiplus.h>      // GDI+ main header
+#include <windows.h>
+#include <gdiplus.h>
 #include <vector>
-#include "SVGRenderer.h"  // Ensure this is after system headers
+#include "SVGRenderer.h"
 
 using namespace Gdiplus;
 using namespace std;

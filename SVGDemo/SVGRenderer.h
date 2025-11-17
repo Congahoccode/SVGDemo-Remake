@@ -22,15 +22,12 @@ public:
     {
     }
 
-    // --- Thiết lập thuộc tính ---
     void SetBackgroundColor(const Color& color) { backgroundColor = color; }
     void SetScale(float s) { scale = s; }
     void SetOffset(const PointF& p) { offset = p; }
 
-    // --- Phương thức chính ---
     void Render(Graphics& g, const vector<SVGElement*>& elements);
 
-    // --- Xử lý tương tác ---
     void Zoom(float factor);
     void Pan(float dx, float dy);
 };
