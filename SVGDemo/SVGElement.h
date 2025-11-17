@@ -18,9 +18,9 @@ protected:
 
 public:
     SVGElement()
-        : fillColor(Color(255, 0, 0, 0)),
+        : fillColor(Color(0, 0, 0, 0)),
         fillOpacity(1.0f),
-        strokeColor(Color(255, 0, 0, 0)),
+        strokeColor(Color(0, 0, 0, 0)),
         strokeOpacity(1.0f),
         strokeWidth(1.0f) {
     }

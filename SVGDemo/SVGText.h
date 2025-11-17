@@ -10,7 +10,7 @@ private:
     float fontSize;
 
 public:
-    SVGText() : x(0), y(0), fontFamily(L"Arial"), fontSize(16.0f) {}
+    SVGText() : x(0), y(0), fontFamily(L"Times New Roman"), fontSize(16.0f) {}
     void Parse(rapidxml::xml_node<>* node) override;
     void Draw(Gdiplus::Graphics& g) override;
 };

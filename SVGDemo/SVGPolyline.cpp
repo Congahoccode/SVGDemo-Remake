@@ -26,5 +26,7 @@ void SVGPolyline::Parse(xml_node<>* node) {
 void SVGPolyline::Draw(Graphics& g) {
     if (points.size() < 2) return;
     Pen pen(strokeColor, strokeWidth);
+    SolidBrush brush(fillColor);
     g.DrawLines(&pen, points.data(), points.size());
+    g.FillPolygon(&brush, points.data(), points.size());
 }

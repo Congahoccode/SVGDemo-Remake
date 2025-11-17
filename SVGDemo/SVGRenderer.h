@@ -3,13 +3,16 @@
 #include <vector>
 #include "SVGElement.h"
 
+using namespace Gdiplus;
+using namespace std;
+
 class SVGRenderer
 {
 private:
-    Gdiplus::Color backgroundColor;  // Màu nền vùng vẽ
+    Color backgroundColor;  // Màu nền vùng vẽ
     float scale;                     // Tỷ lệ phóng to / thu nhỏ
-    Gdiplus::PointF offset;          // Vị trí tịnh tiến khung nhìn (pan)
-
+    PointF offset;          // Vị trí tịnh tiến khung nhìn (pan)
+    float zoomFactor = 1.0f;   // zoom tổng
 public:
     // Constructor mặc định
     SVGRenderer()
@@ -20,10 +23,14 @@ public:
     }
 
     // --- Thiết lập thuộc tính ---
-    void SetBackgroundColor(const Gdiplus::Color& color) { backgroundColor = color; }
+    void SetBackgroundColor(const Color& color) { backgroundColor = color; }
     void SetScale(float s) { scale = s; }
-    void SetOffset(const Gdiplus::PointF& p) { offset = p; }
+    void SetOffset(const PointF& p) { offset = p; }
 
     // --- Phương thức chính ---
-    void Render(Gdiplus::Graphics& g, const std::vector<SVGElement*>& elements);
+    void Render(Graphics& g, const vector<SVGElement*>& elements);
+
+    // --- Xử lý tương tác ---
+    void Zoom(float factor);
+    void Pan(float dx, float dy);
 };

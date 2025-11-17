@@ -32,4 +32,7 @@ public:
 
     // Giải phóng bộ nhớ
     void Clear();
+
+	// Lấy bộ kết xuất
+	SVGRenderer& GetRenderer() { return renderer; }
 };
