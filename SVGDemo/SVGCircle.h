@@ -2,7 +2,8 @@
 #include "stdafx.h"
 #include "SVGElement.h"
 
-class SVGCircle : public SVGElement {
+class SVGCircle : public SVGElement 
+{
 private:
     float cx, cy, r;
 

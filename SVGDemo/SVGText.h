@@ -2,7 +2,8 @@
 #include "SVGElement.h"
 #include <string>
 
-class SVGText : public SVGElement {
+class SVGText : public SVGElement 
+{
 private:
     float x, y;
     std::wstring content;

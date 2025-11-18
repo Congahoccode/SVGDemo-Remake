@@ -1,7 +1,8 @@
 #pragma once
 #include "SVGElement.h"
 
-class SVGEllipse : public SVGElement {
+class SVGEllipse : public SVGElement 
+{
 private:
     float cx, cy, rx, ry;
 

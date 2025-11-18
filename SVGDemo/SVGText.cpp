@@ -8,7 +8,8 @@ using namespace rapidxml;
 
 void SVGText::Parse(xml_node<>* node) {
     SVGElement::Parse(node);
-    for (auto* a = node->first_attribute(); a; a = a->next_attribute()) {
+    for (auto* a = node->first_attribute(); a; a = a->next_attribute()) 
+    {
         string n = a->name();
         string v = a->value();
         if (n == "x") x = stof(v);
@@ -21,7 +22,8 @@ void SVGText::Parse(xml_node<>* node) {
         content = wstring(node->value(), node->value() + strlen(node->value()));
 }
 
-void SVGText::Draw(Graphics& g) {
+void SVGText::Draw(Graphics& g) 
+{
     SolidBrush brush(fillColor);
     FontFamily family(fontFamily.c_str());
     Font font(&family, fontSize, FontStyleRegular, UnitPixel);

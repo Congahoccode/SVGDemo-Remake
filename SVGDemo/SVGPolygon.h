@@ -2,7 +2,8 @@
 #include "SVGElement.h"
 #include <vector>
 
-class SVGPolygon : public SVGElement {
+class SVGPolygon : public SVGElement 
+{
 private:
     std::vector<Gdiplus::PointF> points;
 

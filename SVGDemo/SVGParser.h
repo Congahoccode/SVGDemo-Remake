@@ -11,8 +11,10 @@
 #include "SVGPolygon.h"
 #include "SVGPolyline.h"
 #include "SVGText.h"
+#include "SVGGroup.h"
 
-class SVGParser {
+class SVGParser 
+{
 private:
     std::vector<char> buffer;
     rapidxml::xml_document<> doc;

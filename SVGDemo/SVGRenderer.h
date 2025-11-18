@@ -13,6 +13,7 @@ private:
     float scale;                     // Tỷ lệ phóng to / thu nhỏ
     PointF offset;          // Vị trí tịnh tiến khung nhìn (pan)
     float zoomFactor = 1.0f;   // zoom tổng
+    float rotationAngle = 0.0f;
 public:
     // Constructor mặc định
     SVGRenderer()
@@ -30,4 +31,5 @@ public:
 
     void Zoom(float factor);
     void Pan(float dx, float dy);
+    void Rotate(float degrees);
 };

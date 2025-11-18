@@ -2,7 +2,8 @@
 #include "SVGParser.h"
 #include <iostream>
 
-bool SVGParser::ParseFile(const std::string& filePath) {
+bool SVGParser::ParseFile(const std::string& filePath) 
+{
     std::ifstream file(filePath);
     if (!file.is_open()) return false;
 
@@ -13,9 +14,11 @@ bool SVGParser::ParseFile(const std::string& filePath) {
     rapidxml::xml_node<>* root = doc.first_node("svg");
     if (!root) return false;
 
-    for (auto* node = root->first_node(); node; node = node->next_sibling()) {
+    for (auto* node = root->first_node(); node; node = node->next_sibling()) 
+    {
         SVGElement* element = CreateElement(node);
-        if (element) {
+        if (element) 
+        {
             element->Parse(node);
             elements.push_back(element);
         }
@@ -23,7 +26,8 @@ bool SVGParser::ParseFile(const std::string& filePath) {
     return true;
 }
 
-SVGElement* SVGParser::CreateElement(rapidxml::xml_node<>* node) {
+SVGElement* SVGParser::CreateElement(rapidxml::xml_node<>* node) 
+{
     std::string name = node->name();
 
     if (name == "rect") return new SVGRect();

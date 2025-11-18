@@ -1,7 +1,8 @@
 #pragma once
 #include "SVGElement.h"
 
-class SVGRect : public SVGElement {
+class SVGRect : public SVGElement 
+{
 private:
     float x, y, width, height;
 

@@ -8,7 +8,8 @@ using namespace std;
 using namespace rapidxml;
 using namespace Gdiplus;
 
-class SVGElement {
+class SVGElement 
+{
 protected:
     Color fillColor;
     float fillOpacity;
@@ -22,7 +23,8 @@ public:
         fillOpacity(1.0f),
         strokeColor(Color(0, 0, 0, 0)),
         strokeOpacity(1.0f),
-        strokeWidth(1.0f) {
+        strokeWidth(1.0f) 
+    {
     }
 
     virtual ~SVGElement() {}

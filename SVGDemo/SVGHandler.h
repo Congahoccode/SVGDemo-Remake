@@ -1,7 +1,8 @@
 #pragma once
 #include "SVGRenderer.h"
 
-class SVGHandler {
+class SVGHandler 
+{
 private:
 	SVGRenderer* renderer;
 	bool isPanning;

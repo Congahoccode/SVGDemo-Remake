@@ -8,7 +8,8 @@
 #include "SVGElement.h"
 
 
-namespace Gdiplus {
+namespace Gdiplus 
+{
     class Graphics;
 }
 

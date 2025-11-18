@@ -1,10 +1,12 @@
 ﻿#include "stdafx.h"
 #include "SVGElement.h"
 
-void SVGElement::Parse(xml_node<>* node) {
+void SVGElement::Parse(xml_node<>* node) 
+{
 
     // ===== parse fill =====
-    if (auto attr = node->first_attribute("fill")) {
+    if (auto attr = node->first_attribute("fill")) 
+    {
         string s = attr->value();
 
         if (s == "none") fillColor = Color(0,0,0,0);
@@ -13,7 +15,8 @@ void SVGElement::Parse(xml_node<>* node) {
             sscanf_s(s.c_str(), "rgb(%d,%d,%d)", &r, &g, &b);
             fillColor = Color((BYTE)(fillOpacity * 255), r, g, b);
         }
-        else if (s[0] == '#') {
+        else if (s[0] == '#') 
+        {
             int r,g,b;
             sscanf_s(s.c_str()+1, "%02x%02x%02x", &r, &g, &b);
             fillColor = Color((BYTE)(fillOpacity * 255), r, g, b);
@@ -21,7 +24,8 @@ void SVGElement::Parse(xml_node<>* node) {
     }
 
     // ===== fill-opacity =====
-    if (auto attr = node->first_attribute("fill-opacity")) {
+    if (auto attr = node->first_attribute("fill-opacity")) 
+    {
         fillOpacity = atof(attr->value());
         fillColor = Color(
             (BYTE)(fillOpacity * 255),
@@ -30,16 +34,19 @@ void SVGElement::Parse(xml_node<>* node) {
     }
 
     // ===== stroke =====
-    if (auto attr = node->first_attribute("stroke")) {
+    if (auto attr = node->first_attribute("stroke")) 
+    {
         string s = attr->value();
 
         if (s == "none") strokeColor = Color(0,0,0,0);
-        else if (s.rfind("rgb(", 0) == 0) {
+        else if (s.rfind("rgb(", 0) == 0) 
+        {
             int r,g,b;
             sscanf_s(s.c_str(), "rgb(%d,%d,%d)", &r, &g, &b);
             strokeColor = Color((BYTE)(strokeOpacity * 255), r, g, b);
         }
-        else if (s[0] == '#') {
+        else if (s[0] == '#') 
+        {
             int r,g,b;
             sscanf_s(s.c_str()+1, "%02x%02x%02x", &r, &g, &b);
             strokeColor = Color((BYTE)(strokeOpacity * 255), r, g, b);
@@ -47,7 +54,8 @@ void SVGElement::Parse(xml_node<>* node) {
     }
 
     // ===== stroke-opacity =====
-    if (auto attr = node->first_attribute("stroke-opacity")) {
+    if (auto attr = node->first_attribute("stroke-opacity")) 
+    {
         strokeOpacity = atof(attr->value());
         strokeColor = Color(
             (BYTE)(strokeOpacity * 255),
@@ -56,7 +64,8 @@ void SVGElement::Parse(xml_node<>* node) {
     }
 
     // ===== stroke-width =====
-    if (auto attr = node->first_attribute("stroke-width")) {
+    if (auto attr = node->first_attribute("stroke-width")) 
+    {
         strokeWidth = atof(attr->value());
     }
 }

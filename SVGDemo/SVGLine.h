@@ -1,7 +1,8 @@
 #pragma once
 #include "SVGElement.h"
 
-class SVGLine : public SVGElement {
+class SVGLine : public SVGElement 
+{
 private:
     float x1, y1, x2, y2;
 

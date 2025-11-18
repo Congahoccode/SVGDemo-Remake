@@ -25,6 +25,7 @@ void SVGRenderer::Render(Graphics& g, const vector<SVGElement*>& elements)
 
     g.TranslateTransform(offset.X, offset.Y);
     g.ScaleTransform(zoomFactor, zoomFactor);
+	g.RotateTransform(rotationAngle);
 
 
     // --- Draw each SVG element ---
@@ -53,4 +54,12 @@ void SVGRenderer::Pan(float dx, float dy)
 {
     offset.X += dx;
     offset.Y += dy;
+}
+void SVGRenderer::Rotate(float degrees)
+{
+    rotationAngle += degrees;
+
+    // Giữ góc trong khoảng 0–360 cho gọn
+    if (rotationAngle >= 360.0f) rotationAngle -= 360.0f;
+    if (rotationAngle < 0.0f) rotationAngle += 360.0f;
 }

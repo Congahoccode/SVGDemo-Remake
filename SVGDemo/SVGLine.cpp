@@ -6,9 +6,11 @@ using namespace std;
 using namespace Gdiplus;
 using namespace rapidxml;
 
-void SVGLine::Parse(xml_node<>* node) {
+void SVGLine::Parse(xml_node<>* node) 
+{
     SVGElement::Parse(node);
-    for (auto* a = node->first_attribute(); a; a = a->next_attribute()) {
+    for (auto* a = node->first_attribute(); a; a = a->next_attribute()) 
+    {
         string n = a->name();
         string v = a->value();
         if (n == "x1") x1 = stof(v);
@@ -18,7 +20,8 @@ void SVGLine::Parse(xml_node<>* node) {
     }
 }
 
-void SVGLine::Draw(Graphics& g) {
+void SVGLine::Draw(Graphics& g) 
+{
     Pen pen(strokeColor, strokeWidth);
     g.DrawLine(&pen, x1, y1, x2, y2);
 }
