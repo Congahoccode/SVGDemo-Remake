@@ -68,4 +68,37 @@ void SVGElement::Parse(xml_node<>* node)
     {
         strokeWidth = atof(attr->value());
     }
+
+	// ===== transform =====
+	// Note: This is a simplified parser for transform attribute
+	if (auto attr = node->first_attribute("transform"))
+	{
+		string s = attr->value();
+		if (s.rfind("translate(", 0) == 0)
+		{
+			float tx, ty = 0;
+			sscanf_s(s.c_str(), "translate(%f,%f)", &tx, &ty);
+			transform.Translate(tx, ty);
+		}
+		else if (s.rfind("scale(", 0) == 0)
+		{
+			float sx, sy;
+			sscanf_s(s.c_str(), "scale(%f,%f)", &sx, &sy);
+			transform.Scale(sx, sy);
+		}
+		else if (s.rfind("rotate(", 0) == 0)
+		{
+			float angle;
+			sscanf_s(s.c_str(), "rotate(%f)", &angle);
+			transform.Rotate(angle);
+		}
+	}
+}
+
+void SVGElement::InheritFrom(const SVGElement& parent) {
+    fillColor = parent.fillColor;
+	fillOpacity = parent.fillOpacity;
+    strokeColor = parent.strokeColor;
+	strokeOpacity = parent.strokeOpacity;
+    strokeWidth = parent.strokeWidth;
 }

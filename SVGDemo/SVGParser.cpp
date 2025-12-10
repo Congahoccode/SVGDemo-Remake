@@ -37,5 +37,6 @@ SVGElement* SVGParser::CreateElement(rapidxml::xml_node<>* node)
     if (name == "polygon") return new SVGPolygon();
     if (name == "polyline") return new SVGPolyline();
     if (name == "text") return new SVGText();
+    if (name == "g") return new SVGGroup(); // Thêm svg group
     return nullptr;
 }
