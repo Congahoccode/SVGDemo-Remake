@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "stdafx.h"
 #include "SVGElement.h"
+#include "SVGParser.h" // Cần để gọi SVGParser::CreateElement
 #include <vector>
 #include <string>
 #include <gdiplus.h>
