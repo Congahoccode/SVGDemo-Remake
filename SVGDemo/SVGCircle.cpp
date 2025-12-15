@@ -21,10 +21,26 @@ void SVGCircle::Parse(xml_node<>* node)
     }
 }
 
-void SVGCircle::Draw(Graphics& g) 
+void SVGCircle::Draw(Graphics& g)
 {
-    SolidBrush brush(fillColor);
-    Pen pen(strokeColor, strokeWidth);
-    g.FillEllipse(&brush, cx - r, cy - r, 2 * r, 2 * r);
-    g.DrawEllipse(&pen, cx - r, cy - r, 2 * r, 2 * r);
+    auto state = g.Save();
+    g.MultiplyTransform(&transform);
+
+    RectF bounds(cx - r, cy - r, 2 * r, 2 * r);
+
+    // ===== FILL =====
+    if (Brush* brush = CreateFillBrush(bounds))
+    {
+        g.FillEllipse(brush, bounds);
+        delete brush;
+    }
+
+    // ===== STROKE =====
+    if (Pen* pen = CreateStrokePen())
+    {
+        g.DrawEllipse(pen, bounds);
+        delete pen;
+    }
+
+    g.Restore(state);
 }

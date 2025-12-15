@@ -1,5 +1,5 @@
 #pragma once
-#pragma once
+#include "rapidxml.hpp"
 #include <string>
 #include <vector>
 #include <gdiplus.h>

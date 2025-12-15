@@ -33,10 +33,12 @@ protected:
     SVGDocument* document;
     SVGLinearGradient* fillGradient;
     FillType fillType;
+    Brush* CreateFillBrush(const RectF& bounds);
+    Pen* CreateStrokePen();
 
 public:
     SVGElement()
-        : fillColor(Color(0, 0, 0, 0)),
+        : fillColor(Color(255, 0, 0, 0)),
         fillOpacity(1.0f),
         strokeColor(Color(0, 0, 0, 0)),
         strokeOpacity(1.0f),

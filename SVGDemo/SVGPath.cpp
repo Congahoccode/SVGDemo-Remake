@@ -177,22 +177,22 @@ void SVGPath::Parse(xml_node<>* node)
 
 void SVGPath::Draw(Graphics& g)
 {
-    GraphicsState state = g.Save();
-    g.MultiplyTransform(&transform); // Transform của chính path
+    auto state = g.Save();
+    g.MultiplyTransform(&transform);
 
-    // 1. Fill trước
-    if (fillOpacity > 0) // Giả sử alpha > 0
+    RectF bounds;
+    path.GetBounds(&bounds);
+
+    if (auto* brush = CreateFillBrush(bounds))
     {
-        SolidBrush brush(Color((BYTE)(fillOpacity * 255), fillColor.GetR(), fillColor.GetG(), fillColor.GetB()));
-        g.FillPath(&brush, &path);
+        g.FillPath(brush, &path);
+        delete brush;
     }
 
-    // 2. Stroke sau
-    if (strokeOpacity > 0 && strokeWidth > 0)
+    if (auto* pen = CreateStrokePen())
     {
-        Pen pen(Color((BYTE)(strokeOpacity * 255), strokeColor.GetR(), strokeColor.GetG(), strokeColor.GetB()), strokeWidth);
-        pen.SetMiterLimit(strokeMiterLimit);
-        g.DrawPath(&pen, &path);
+        g.DrawPath(pen, &path);
+        delete pen;
     }
 
     g.Restore(state);

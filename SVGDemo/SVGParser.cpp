@@ -15,32 +15,36 @@ bool SVGParser::ParseFile(const std::string& filePath)
     rapidxml::xml_node<>* root = doc.first_node("svg");
     if (!root) return false;
 
-	// Parse defs first
-    if (auto* defs = root->first_node("defs"))
+    // Parse ALL <defs>
+    for (auto* node = root->first_node("defs");
+        node;
+        node = node->next_sibling("defs"))
     {
-        for (auto* node = defs->first_node(); node; node = node->next_sibling())
+        for (auto* def = node->first_node(); def; def = def->next_sibling())
         {
-            std::string name = node->name();
+            std::string name = def->name();
 
             if (name == "linearGradient")
             {
-                SVGLinearGradient* grad = new SVGLinearGradient();
-                grad->Parse(node);
+                auto* grad = new SVGLinearGradient();
+                grad->Parse(def);
                 document.AddLinearGradient(grad);
             }
         }
     }
 
-	// Parse các phần tử con của <svg>
-    for (auto* node = root->first_node(); node; node = node->next_sibling()) 
+	// Parse drawable elements (skip <defs>)
+    for (auto* node = root->first_node(); node; node = node->next_sibling())
     {
+        if (std::string(node->name()) == "defs")
+            continue;
+
         SVGElement* element = CreateElement(node);
-        if (element) 
-        {
-			element->SetDocument(&document);
-            element->Parse(node);
-            elements.push_back(element);
-        }
+        if (!element) continue;
+
+        element->SetDocument(&document);
+        element->Parse(node);
+        elements.push_back(element);
     }
     return true;
 }

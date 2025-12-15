@@ -27,11 +27,43 @@ void SVGPolygon::Parse(xml_node<>* node)
     }
 }
 
-void SVGPolygon::Draw(Graphics& g) 
+void SVGPolygon::Draw(Graphics& g)
 {
-    if (points.empty()) return;
-    SolidBrush brush(fillColor);
-    Pen pen(strokeColor, strokeWidth);
-    g.FillPolygon(&brush, points.data(), points.size());
-    g.DrawPolygon(&pen, points.data(), points.size());
+    if (points.size() < 3) return;
+
+    auto state = g.Save();
+    g.MultiplyTransform(&transform);
+
+    // ===== Compute bounds =====
+    float minX = points[0].X;
+    float minY = points[0].Y;
+    float maxX = points[0].X;
+    float maxY = points[0].Y;
+
+    for (size_t i = 1; i < points.size(); ++i)
+    {
+        minX = min(minX, points[i].X);
+        minY = min(minY, points[i].Y);
+        maxX = max(maxX, points[i].X);
+        maxY = max(maxY, points[i].Y);
+    }
+
+    RectF bounds(minX, minY, maxX - minX, maxY - minY);
+
+    // ===== FILL =====
+    if (Brush* brush = CreateFillBrush(bounds))
+    {
+        g.FillPolygon(brush, points.data(), (INT)points.size());
+        delete brush;
+    }
+
+    // ===== STROKE =====
+    if (Pen* pen = CreateStrokePen())
+    {
+        g.DrawPolygon(pen, points.data(), (INT)points.size());
+        delete pen;
+    }
+
+    g.Restore(state);
 }
+

@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "SVGElement.h"
 #include "SVGDocument.h"
+#include "SVGLinearGradient.h"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -52,7 +53,7 @@ void SVGElement::Parse(xml_node<>* node)
         // ===== 1. fill="none" =====
         if (s == "none") {
             fillType = FillType::None;
-            fillColor = Color(0, 0, 0, 0);
+            fillColor = Color(255, 0, 0, 0);
         }
 
         // ===== 2. fill="url(#id)" → Linear Gradient =====
@@ -183,21 +184,53 @@ void SVGElement::Parse(xml_node<>* node)
 
 void SVGElement::InheritFrom(const SVGElement& parent)
 {
-    this->fillColor = parent.fillColor;
-    this->fillOpacity = parent.fillOpacity;
-    this->strokeColor = parent.strokeColor;
-    this->strokeWidth = parent.strokeWidth;
-    this->strokeOpacity = parent.strokeOpacity;
-    this->strokeMiterLimit = parent.strokeMiterLimit;
-    this->fillType = parent.fillType;
-    this->fillGradient = parent.fillGradient;
-    this->document = parent.document;
-    // Use Clone to copy the transform matrix since assignment is inaccessible
-    Matrix* clonedMatrix = parent.transform.Clone();
-    if (clonedMatrix != nullptr)
+    if (!this->document)
+        this->document = parent.document;
+
+    // ===== FILL =====
+    if (this->fillType == FillType::None && parent.fillType != FillType::None)
     {
-        this->transform.Reset();
-        this->transform.Multiply(clonedMatrix, MatrixOrderPrepend);
-        delete clonedMatrix;
+        this->fillType = parent.fillType;
+        this->fillColor = parent.fillColor;
+        this->fillOpacity = parent.fillOpacity;
+        this->fillGradient = parent.fillGradient;
     }
+
+    // ===== STROKE =====
+    if (this->strokeColor.GetA() == 0 && parent.strokeColor.GetA() > 0)
+    {
+        this->strokeColor = parent.strokeColor;
+        this->strokeWidth = parent.strokeWidth;
+        this->strokeOpacity = parent.strokeOpacity;
+        this->strokeMiterLimit = parent.strokeMiterLimit;
+    }
+}
+
+Brush* SVGElement::CreateFillBrush(const RectF& bounds)
+{
+    if (fillType == FillType::None) return nullptr;
+
+    // ===== SOLID COLOR =====
+    if (fillType == FillType::Solid)
+    {
+        return new SolidBrush(fillColor);
+    }
+
+    // ===== LINEAR GRADIENT =====
+    if (fillType == FillType::LinearGradient && fillGradient)
+    {
+        return fillGradient->CreateBrush(bounds);
+    }
+
+    return nullptr;
+}
+
+Pen* SVGElement::CreateStrokePen()
+{
+    if (strokeWidth <= 0 || strokeColor.GetA() == 0)
+        return nullptr;
+
+    Pen* pen = new Pen(strokeColor, strokeWidth);
+    pen->SetMiterLimit(strokeMiterLimit);
+    return pen;
 }

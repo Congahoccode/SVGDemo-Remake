@@ -16,10 +16,25 @@ void SVGRect::Parse(rapidxml::xml_node<>* node)
     }
 }
 
-void SVGRect::Draw(Gdiplus::Graphics& g) 
+void SVGRect::Draw(Gdiplus::Graphics& g)
 {
-    Gdiplus::SolidBrush brush(fillColor);
-    Gdiplus::Pen pen(strokeColor, strokeWidth);
-    g.FillRectangle(&brush, x, y, width, height);
-    g.DrawRectangle(&pen, x, y, width, height);
+    auto state = g.Save();
+    g.MultiplyTransform(&transform);
+
+    RectF rect(x, y, width, height);
+
+    if (Brush* brush = CreateFillBrush(rect))
+    {
+        g.FillRectangle(brush, rect);
+        delete brush;
+    }
+
+    if (Pen* pen = CreateStrokePen())
+    {
+        g.DrawRectangle(pen, rect);
+        delete pen;
+    }
+
+    g.Restore(state);
 }
+

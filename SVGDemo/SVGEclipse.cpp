@@ -20,10 +20,25 @@ void SVGEllipse::Parse(xml_node<>* node)
     }
 }
 
-void SVGEllipse::Draw(Graphics& g) 
+void SVGEllipse::Draw(Gdiplus::Graphics& g)
 {
-    SolidBrush brush(fillColor);
-    Pen pen(strokeColor, strokeWidth);
-    g.FillEllipse(&brush, cx - rx, cy - ry, 2 * rx, 2 * ry);
-    g.DrawEllipse(&pen, cx - rx, cy - ry, 2 * rx, 2 * ry);
+    auto state = g.Save();
+    g.MultiplyTransform(&transform);
+
+    RectF bounds(cx - rx, cy - ry, 2 * rx, 2 * ry);
+
+    if (Brush* brush = CreateFillBrush(bounds))
+    {
+        g.FillEllipse(brush, bounds);
+        delete brush;
+    }
+
+    if (Pen* pen = CreateStrokePen())
+    {
+        g.DrawEllipse(pen, bounds);
+        delete pen;
+    }
+
+    g.Restore(state);
 }
+

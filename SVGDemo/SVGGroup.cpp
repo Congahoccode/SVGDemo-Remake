@@ -12,20 +12,27 @@ SVGGroup::~SVGGroup()
 
 void SVGGroup::Parse(xml_node<>* node)
 {
-    // tự gọi Parse() của SVGElement -> lấy fill/stroke/transform của nhóm
+    // Parse thuộc tính của group (fill, stroke, transform)
     SVGElement::Parse(node);
 
-    // Parse các element con
     for (auto* child = node->first_node(); child; child = child->next_sibling())
     {
         SVGElement* element = SVGParser::CreateElement(child);
-        if (element) {
-            element->InheritFrom(*this);  // kế thừa fill/stroke
-            element->Parse(child);        // parse thuộc tính riêng
-            children.push_back(element);
-        }
+        if (!element) continue;
+
+        // Truyền document
+        element->SetDocument(this->document);
+
+        // INHERIT TRƯỚC (fallback)
+        element->InheritFrom(*this);
+
+        // Parse thuộc tính riêng (override)
+        element->Parse(child);
+
+        children.push_back(element);
     }
 }
+
 
 void SVGGroup::Draw(Graphics& g)
 {

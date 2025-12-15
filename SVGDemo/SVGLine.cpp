@@ -20,8 +20,17 @@ void SVGLine::Parse(xml_node<>* node)
     }
 }
 
-void SVGLine::Draw(Graphics& g) 
+void SVGLine::Draw(Gdiplus::Graphics& g)
 {
-    Pen pen(strokeColor, strokeWidth);
-    g.DrawLine(&pen, x1, y1, x2, y2);
+    auto state = g.Save();
+    g.MultiplyTransform(&transform);
+
+    if (Pen* pen = CreateStrokePen())
+    {
+        g.DrawLine(pen, x1, y1, x2, y2);
+        delete pen;
+    }
+
+    g.Restore(state);
 }
+
