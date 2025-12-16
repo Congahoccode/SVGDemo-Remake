@@ -154,6 +154,7 @@
     <ClInclude Include="SVGEclipse.h" />
     <ClInclude Include="SVGElement.h" />
     <ClInclude Include="SVGHandler.h" />
+    <ClInclude Include="SVGHelper.h" />
     <ClInclude Include="SVGLine.h" />
     <ClInclude Include="SVGLinearGradient.h" />
     <ClInclude Include="SVGParser.h" />
@@ -164,6 +165,7 @@
     <ClInclude Include="SVGPath.h" />
     <ClInclude Include="SVGPolygon.h" />
     <ClInclude Include="SVGPolyline.h" />
+    <ClInclude Include="SVGRadialGradient.h" />
     <ClInclude Include="SVGRect.h" />
     <ClInclude Include="SVGRenderer.h" />
     <ClInclude Include="SVGText.h" />
@@ -191,6 +193,7 @@
     <ClCompile Include="SVGPath.cpp" />
     <ClCompile Include="SVGPolygon.cpp" />
     <ClCompile Include="SVGPolyline.cpp" />
+    <ClCompile Include="SVGRadialGradient.cpp" />
     <ClCompile Include="SVGRect.cpp" />
     <ClCompile Include="SVGRenderer.cpp" />
     <ClCompile Include="SVGText.cpp" />

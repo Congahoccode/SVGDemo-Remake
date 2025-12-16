@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <string>
+#include <vector>
 #include <windows.h>
 #include <gdiplus.h>
 #pragma warning(push)
@@ -15,13 +16,15 @@ enum class FillType {
     None,
     Unset,
     Solid,
-    LinearGradient
+    LinearGradient,
+    RadialGradient
 };
 
-class SVGLinearGradient; 
+class SVGLinearGradient;
+class SVGRadialGradient;
 class SVGDocument;
 
-class SVGElement 
+class SVGElement
 {
 protected:
     Color fillColor;
@@ -31,9 +34,16 @@ protected:
     float strokeWidth;
     Matrix transform;
     float strokeMiterLimit;
+
+    std::vector<float> strokeDashArray;
+
     SVGDocument* document;
     SVGLinearGradient* fillGradient;
+    SVGRadialGradient* fillRadialGradient;
     FillType fillType = FillType::Unset;
+    LineCap strokeLineCap;
+    LineJoin strokeLineJoin;
+
     Brush* CreateFillBrush(const RectF& bounds);
     Pen* CreateStrokePen();
 
@@ -46,18 +56,26 @@ public:
         strokeColor(Color(0, 0, 0, 0)),
         strokeOpacity(1.0f),
         strokeWidth(1.0f),
-        strokeMiterLimit(4)
+        strokeMiterLimit(4.0f),
+        strokeLineCap(LineCapFlat),
+        strokeLineJoin(LineJoinMiter)
     {
-		document = nullptr;
+        document = nullptr;
         fillGradient = nullptr;
+        fillRadialGradient = nullptr;
         fillType = FillType::Unset;
-		transform.Reset();
+        transform.Reset();
     }
 
     virtual ~SVGElement() {}
+
     void SetDocument(SVGDocument* doc) { document = doc; }
-    virtual void InheritFrom(const SVGElement& parent); // Kế thừa node cha trong element svg group
+
+    virtual void InheritFrom(const SVGElement& parent); // Kế thừa node cha
+
     virtual void Parse(xml_node<>* node);
+
     virtual void Draw(Graphics& graphics) = 0;
+
     virtual RectF GetBoundingBox() { return RectF(0, 0, 0, 0); }
 };

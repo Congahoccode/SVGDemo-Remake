@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "rapidxml.hpp"
 #include <string>
 #include <vector>
@@ -6,6 +6,8 @@
 
 using namespace Gdiplus;
 using namespace std;
+
+class SVGDocument;
 
 struct SVGGradientStop
 {
@@ -17,21 +19,21 @@ class SVGLinearGradient
 {
 private:
     string id;
-
     float x1 = 0, y1 = 0;
     float x2 = 1, y2 = 0;
-
     bool userSpace = false;
-
     vector<SVGGradientStop> stops;
+    // Matrix để sửa Google Chrome
+    Matrix transform;
 
 public:
-    SVGLinearGradient() {}
+    SVGLinearGradient() { transform.Reset(); }
 
     void SetId(const string& _id) { id = _id; }
     const string& GetId() const { return id; }
 
-    void Parse(rapidxml::xml_node<>* node);
+    void Parse(rapidxml::xml_node<>* node, SVGDocument* doc);
 
     LinearGradientBrush* CreateBrush(const RectF& bounds) const;
+    const vector<SVGGradientStop>& GetStops() const { return stops; }
 };

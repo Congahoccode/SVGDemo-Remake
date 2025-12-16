@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <gdiplus.h>
 #include <vector>
+#include <algorithm>
 #include "SVGRenderer.h"
 
 using namespace Gdiplus;
@@ -12,23 +13,12 @@ void SVGRenderer::Render(Graphics& g, const vector<SVGElement*>& elements)
     // Clear previous drawing, fill background
     g.Clear(backgroundColor);
     g.SetSmoothingMode(SmoothingModeAntiAlias);
-    /*
-    // Save current graphics state
-    GraphicsState state = g.Save();
-
-    // Apply renderer-wide transforms (scale, offset)
-    Matrix transform;
-    transform.Scale(scale, scale);
-    transform.Translate(offset.X, offset.Y, MatrixOrderAppend);
-    g.MultiplyTransform(&transform);
-    */
-
     g.TranslateTransform(offset.X, offset.Y);
     g.ScaleTransform(zoomFactor, zoomFactor);
-	g.RotateTransform(rotationAngle);
+    g.RotateTransform(rotationAngle);
 
 
-    // --- Draw each SVG element ---
+    // Draw each SVG element
     for (auto e : elements)
     {
         if (e)
@@ -36,17 +26,13 @@ void SVGRenderer::Render(Graphics& g, const vector<SVGElement*>& elements)
             e->Draw(g);
         }
     }
-
-    // Restore original graphics state
-    //g.Restore(state);
 }
 
 void SVGRenderer::Zoom(float factor)
 {
     zoomFactor *= factor;
-    // Giới hạn zoom để tránh mất hình
-    if (zoomFactor < 0.1f) zoomFactor = 0.1f;
-    if (zoomFactor > 10.0f) zoomFactor = 10.0f;
+    if (zoomFactor < 0.001f) zoomFactor = 0.001f;
+    if (zoomFactor > 10000.0f) zoomFactor = 10000.0f;
 }
 
 void SVGRenderer::Pan(float dx, float dy)
@@ -54,6 +40,7 @@ void SVGRenderer::Pan(float dx, float dy)
     offset.X += dx;
     offset.Y += dy;
 }
+
 void SVGRenderer::Rotate(float degrees)
 {
     rotationAngle += degrees;
@@ -74,12 +61,15 @@ void SVGRenderer::AutoFit(int screenWidth, int screenHeight, const vector<SVGEle
     for (auto* e : elements)
     {
         RectF r = e->GetBoundingBox();
+
+        // Bỏ qua phần tử không có kích thước thực (như defs rỗng)
         if (r.Width <= 0 || r.Height <= 0) continue;
 
         if (first) { totalRect = r; first = false; }
         else { totalRect.Union(totalRect, totalRect, r); }
     }
 
+    // Nếu không có gì để vẽ
     if (totalRect.Width <= 0 || totalRect.Height <= 0) return;
 
     // 2. Tính tỉ lệ Zoom cần thiết
@@ -87,17 +77,19 @@ void SVGRenderer::AutoFit(int screenWidth, int screenHeight, const vector<SVGEle
     float availableW = (float)screenWidth - padding;
     float availableH = (float)screenHeight - padding;
 
+    if (availableW < 1) availableW = 1;
+    if (availableH < 1) availableH = 1;
+
     float scaleX = availableW / totalRect.Width;
     float scaleY = availableH / totalRect.Height;
 
-    // Chọn tỉ lệ nhỏ hơn để hình nằm lọt lòng (Fit)
-    zoomFactor = min(scaleX, scaleY);
+    zoomFactor = (std::min)(scaleX, scaleY);
 
-    // 3. Tính Offset để đưa hình về giữa màn hình
-    // Công thức: (Màn hình / 2) - (Tâm hình * Zoom)
     float midX = totalRect.X + totalRect.Width / 2.0f;
     float midY = totalRect.Y + totalRect.Height / 2.0f;
 
     offset.X = (screenWidth / 2.0f) - (midX * zoomFactor);
     offset.Y = (screenHeight / 2.0f) - (midY * zoomFactor);
+
+    rotationAngle = 0.0f;
 }

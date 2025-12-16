@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "SVGParser.h"
 #include "SVGLinearGradient.h"
+#include "SVGRadialGradient.h"
 #include <iostream>
 
 bool SVGParser::ParseFile(const std::string& filePath) 
@@ -27,9 +28,15 @@ bool SVGParser::ParseFile(const std::string& filePath)
             if (name == "linearGradient")
             {
                 auto* grad = new SVGLinearGradient();
-                grad->Parse(def);
+                grad->Parse(def, &document);
                 document.AddLinearGradient(grad);
             }
+            else if (name == "radialGradient")
+            {
+                auto* grad = new SVGRadialGradient();
+                grad->Parse(def, &document);
+                document.AddRadialGradient(grad);
+			}
         }
     }
 
@@ -62,6 +69,7 @@ SVGElement* SVGParser::CreateElement(rapidxml::xml_node<>* node)
     if (name == "text") return new SVGText();
     if (name == "g") return new SVGGroup();
 	if (name == "path") return new SVGPath();
+
     return nullptr;
 }
 

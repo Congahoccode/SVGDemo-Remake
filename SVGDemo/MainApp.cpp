@@ -5,66 +5,67 @@
 
 using namespace Gdiplus;
 
-// Destructor
 MainApp::~MainApp()
 {
-    // Chỉ cần gọi parser dọn dẹp là đủ
     parser.Clear();
 }
 
-// Hàm dọn dẹp (Wrapper)
 void MainApp::Clear()
 {
-    // Ủy quyền hoàn toàn cho parser quản lý bộ nhớ
     parser.Clear();
+    renderer.ResetTransform();
 }
 
 bool MainApp::LoadSVG(const std::string& filePath)
 {
-    // 1. Dọn dẹp dữ liệu cũ trước khi load mới
+    // 1. Dọn dẹp
     Clear();
 
-    // 2. Yêu cầu parser đọc file
+    // 2. Parse file mới
     bool ok = parser.ParseFile(filePath);
     if (!ok)
     {
-        // Dùng MessageBox để báo lỗi dễ thấy hơn std::cerr
-        std::wstring wFilePath(filePath.begin(), filePath.end()); // Chuyển sang wstring để in ra nếu cần
-        std::cerr << "Khong the doc file SVG: " << filePath << std::endl;
+        std::wstring wFilePath(filePath.begin(), filePath.end());
+        std::cerr << "Không thể đọc File SVG: " << filePath << std::endl;
         return false;
     }
 
-    // 3. Thông báo thành công (Lấy số lượng trực tiếp từ parser)
-    std::cout << "Da doc thanh cong " << parser.GetElements().size() << " phan tu SVG." << std::endl;
+    std::cout << "Đã đọc thành công " << parser.GetElements().size() << " phần tử SVG." << std::endl;
+    needsAutoFit = true;
 
     return true;
 }
 
 void MainApp::Render(Graphics& g)
 {
-    // 1. Nếu có hình thì vẽ hình
+    // 1. Nếu có hình
     if (!parser.GetElements().empty())
     {
+        //2. AutoFit
+        if (needsAutoFit)
+        {
+            RectF bounds;
+            g.GetVisibleClipBounds(&bounds); // Lấy kích thước màn hình hiện tại
+            renderer.AutoFit((int)bounds.Width, (int)bounds.Height, parser.GetElements());
+
+            needsAutoFit = false;
+        }
+
+        // 3. Vẽ hình
         renderer.Render(g, parser.GetElements());
     }
-    // 2. Nếu chưa có hình -> Vẽ hướng dẫn "Kéo thả"
+    // 4. Nếu chưa có hình -> Hiện thông báo
     else
     {
-        // --- KHAI BÁO CÁC ĐỐI TƯỢNG GDI+ CẦN THIẾT ---
-        SolidBrush brush(Color(128, 128, 128)); // Màu xám
+        SolidBrush brush(Color(128, 128, 128));
         FontFamily fontFamily(L"Arial");
         Font font(&fontFamily, 16, FontStyleBold, UnitPoint);
         StringFormat format;
         format.SetAlignment(StringAlignmentCenter);
         format.SetLineAlignment(StringAlignmentCenter);
-        // ----------------------------------------------
 
-        // Lấy kích thước vùng vẽ
         RectF bounds;
         g.GetVisibleClipBounds(&bounds);
-
-        RectF rect(0, 0, bounds.Width, bounds.Height);
-
-        g.DrawString(L"Vui long keo tha file SVG vao day!", -1, &font, rect, &format, &brush);
+        g.DrawString(L"Vui lòng kéo thả File SVG vào đây!", -1, &font, bounds, &format, &brush);
     }
 }
