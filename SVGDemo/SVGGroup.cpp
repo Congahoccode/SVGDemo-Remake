@@ -71,7 +71,7 @@ RectF SVGGroup::GetBoundingBox()
         }
     }
 
-    // Nếu Group có transform (di chuyển/scale), ta phải áp dụng lên khung bao tổng
+    // Nếu Group có transform, áp dụng lên khung bao tổng
     if (!transform.IsIdentity())
     {
         GraphicsPath gp;

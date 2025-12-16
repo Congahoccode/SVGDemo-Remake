@@ -28,4 +28,5 @@ public:
     std::vector<SVGElement*>& GetElements() { return elements; }
 	static SVGElement* CreateElement(rapidxml::xml_node<>* node); // Xóa private và đổi thành static để SVG group có thể gọi mà không cần tạo instance
     const std::vector<SVGElement*>& GetElements() const { return elements; }
+    void Clear();
 };

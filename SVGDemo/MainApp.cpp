@@ -2,43 +2,69 @@
 #include "MainApp.h"
 #include <iostream>
 #include <gdiplus.h>
+
 using namespace Gdiplus;
 
+// Destructor
 MainApp::~MainApp()
 {
-    Clear();
+    // Chỉ cần gọi parser dọn dẹp là đủ
+    parser.Clear();
+}
+
+// Hàm dọn dẹp (Wrapper)
+void MainApp::Clear()
+{
+    // Ủy quyền hoàn toàn cho parser quản lý bộ nhớ
+    parser.Clear();
 }
 
 bool MainApp::LoadSVG(const std::string& filePath)
 {
-    Clear(); // Xóa dữ liệu cũ nếu có
+    // 1. Dọn dẹp dữ liệu cũ trước khi load mới
+    Clear();
 
+    // 2. Yêu cầu parser đọc file
     bool ok = parser.ParseFile(filePath);
     if (!ok)
     {
-        std::cerr << "Không thể đọc file SVG: " << filePath << std::endl;
+        // Dùng MessageBox để báo lỗi dễ thấy hơn std::cerr
+        std::wstring wFilePath(filePath.begin(), filePath.end()); // Chuyển sang wstring để in ra nếu cần
+        std::cerr << "Khong the doc file SVG: " << filePath << std::endl;
         return false;
     }
 
-    elements = parser.GetElements();
-    std::cout << "Đã đọc thành công " << elements.size() << " phần tử SVG." << std::endl;
+    // 3. Thông báo thành công (Lấy số lượng trực tiếp từ parser)
+    std::cout << "Da doc thanh cong " << parser.GetElements().size() << " phan tu SVG." << std::endl;
+
     return true;
 }
 
-void MainApp::Render(Gdiplus::Graphics& g)
+void MainApp::Render(Graphics& g)
 {
-    if (elements.empty())
+    // 1. Nếu có hình thì vẽ hình
+    if (!parser.GetElements().empty())
     {
-        std::cerr << "Không có phần tử SVG nào để vẽ!" << std::endl;
-        return;
+        renderer.Render(g, parser.GetElements());
     }
+    // 2. Nếu chưa có hình -> Vẽ hướng dẫn "Kéo thả"
+    else
+    {
+        // --- KHAI BÁO CÁC ĐỐI TƯỢNG GDI+ CẦN THIẾT ---
+        SolidBrush brush(Color(128, 128, 128)); // Màu xám
+        FontFamily fontFamily(L"Arial");
+        Font font(&fontFamily, 16, FontStyleBold, UnitPoint);
+        StringFormat format;
+        format.SetAlignment(StringAlignmentCenter);
+        format.SetLineAlignment(StringAlignmentCenter);
+        // ----------------------------------------------
 
-    renderer.Render(g, elements);
-}
+        // Lấy kích thước vùng vẽ
+        RectF bounds;
+        g.GetVisibleClipBounds(&bounds);
 
-void MainApp::Clear()
-{
-    for (auto e : elements)
-        delete e;
-    elements.clear();
+        RectF rect(0, 0, bounds.Width, bounds.Height);
+
+        g.DrawString(L"Vui long keo tha file SVG vao day!", -1, &font, rect, &format, &brush);
+    }
 }

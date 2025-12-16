@@ -18,7 +18,6 @@ class MainApp
 private:
     SVGParser parser;
     SVGRenderer renderer;
-    std::vector<SVGElement*> elements;
 
 public:
     MainApp() = default;

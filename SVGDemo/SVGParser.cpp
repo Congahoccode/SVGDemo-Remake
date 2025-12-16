@@ -64,3 +64,17 @@ SVGElement* SVGParser::CreateElement(rapidxml::xml_node<>* node)
 	if (name == "path") return new SVGPath();
     return nullptr;
 }
+
+void SVGParser::Clear()
+{
+    // Xóa bộ nhớ các hình đã tạo
+    for (auto* e : elements)
+        delete e;
+    elements.clear();
+
+    // Xóa bộ nhớ đệm file
+    buffer.clear();
+
+    // Xóa gradient trong document (Biến document nằm trong Parser)
+    document.Clear();
+}

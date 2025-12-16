@@ -14,4 +14,5 @@ public:
 
     void AddLinearGradient(SVGLinearGradient* g);
     SVGLinearGradient* GetLinearGradient(const std::string& id);
+    void Clear();
 };

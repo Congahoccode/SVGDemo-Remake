@@ -19,3 +19,10 @@ SVGLinearGradient* SVGDocument::GetLinearGradient(const std::string& id)
     auto it = linearGradients.find(id);
     return (it != linearGradients.end()) ? it->second : nullptr;
 }
+
+void SVGDocument::Clear()
+{
+    for (auto& p : linearGradients)
+        delete p.second;
+    linearGradients.clear();
+}

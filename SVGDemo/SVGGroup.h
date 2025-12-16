@@ -15,7 +15,7 @@ private:
     vector<SVGElement*> children;
 public:
     SVGGroup() {};
-    ~SVGGroup() override;
+    ~SVGGroup();
 
     void Parse(xml_node<>* node) override;
 

@@ -33,4 +33,11 @@ public:
     void Pan(float dx, float dy);
     void Rotate(float degrees);
     void AutoFit(int screenWidth, int screenHeight, const std::vector<SVGElement*>& elements);
+    void ResetTransform()
+    {
+        scale = 1.0f;
+        offset = PointF(0, 0);
+        zoomFactor = 1.0f;
+        rotationAngle = 0.0f;
+	}
 };
