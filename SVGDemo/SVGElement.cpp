@@ -408,7 +408,7 @@ void SVGElement::Parse(xml_node<>* node)
             pos = closeParen + 1;
         }
     }
-	// 6. STROKE LINE JOIN
+	// 5. STROKE LINE JOIN
     if (auto attr = node->first_attribute("stroke-linecap")) {
         string s = attr->value();
         if (s == "round") strokeLineCap = LineCapRound;
