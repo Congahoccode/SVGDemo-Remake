@@ -3,6 +3,7 @@
 #include <vector>
 #include <windows.h>
 #include <gdiplus.h>
+#include <map>
 #pragma warning(push)
 #pragma warning(disable : 26495) 
 #include "rapidxml.hpp"
@@ -70,11 +71,11 @@ public:
     virtual ~SVGElement() {}
 
     void SetDocument(SVGDocument* doc) { document = doc; }
-
-    virtual void InheritFrom(const SVGElement& parent); // Kế thừa node cha
-
-    virtual void Parse(xml_node<>* node);
-
+    virtual void InheritFrom(const SVGElement& parent); // Kế thừa node cha trong element svg group
+	void ParseFillValue(const string& value); // Được gọi trong Parse()
+	void ParseStrokeValue(const string& value); // Được gọi trong Parse()
+	void ParseStyle(map<string, string>& styles); // Đọc style từ thẻ style trước
+	virtual void Parse(xml_node<>* node); // Phân tích cú pháp từ thẻ SVG rồi ghi đè có thuộc tính lên style sau
     virtual void Draw(Graphics& graphics) = 0;
 
     virtual RectF GetBoundingBox() { return RectF(0, 0, 0, 0); }

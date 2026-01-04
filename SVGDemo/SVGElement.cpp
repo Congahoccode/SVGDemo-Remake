@@ -95,142 +95,280 @@ static int Hex2Int(char c) {
     return 0;
 }
 
-void SVGElement::Parse(xml_node<>* node)
+static void ParseStyleString(const string& style, map<string, string>& out)
 {
-    // 1. LẤY GIÁ TRỊ TỪ THUỘC TÍNH (ATTRIBUTE)
-    string fillStr = "", strokeStr = "";
-
-    if (auto attr = node->first_attribute("fill")) fillStr = attr->value();
-    if (auto attr = node->first_attribute("stroke")) strokeStr = attr->value();
-    if (auto attr = node->first_attribute("fill-opacity")) fillOpacity = (float)atof(attr->value());
-    if (auto attr = node->first_attribute("stroke-opacity")) strokeOpacity = (float)atof(attr->value());
-    if (auto attr = node->first_attribute("stroke-width")) strokeWidth = (float)atof(attr->value());
-    if (auto attr = node->first_attribute("stroke-miterlimit")) strokeMiterLimit = atof(attr->value());
-
-    // 2. --- QUAN TRỌNG: PHÂN TÍCH STYLE (Ghi đè thuộc tính) ---
-    // Đây là phần sửa lỗi cho Chrome (style="fill:url(#a)")
-    if (auto attr = node->first_attribute("style"))
+    size_t pos = 0;
+    while (pos < style.length())
     {
-        string style = attr->value();
-        stringstream ss(style);
-        string segment;
+        size_t colon = style.find(':', pos);
+        if (colon == string::npos) break;
 
-        // Tách chuỗi theo dấu chấm phẩy ';'
-        while (getline(ss, segment, ';'))
+        size_t semi = style.find(';', colon);
+        if (semi == string::npos)
+            semi = style.length();
+
+        string key = style.substr(pos, colon - pos);
+        string val = style.substr(colon + 1, semi - colon - 1);
+
+        // trim
+        auto trim = [](string& s) {
+            while (!s.empty() && isspace((unsigned char)s.front())) s.erase(0, 1);
+            while (!s.empty() && isspace((unsigned char)s.back())) s.pop_back();
+            };
+
+        trim(key);
+        trim(val);
+
+        out[key] = val;
+        pos = semi + 1;
+    }
+}
+
+void SVGElement::ParseFillValue(const string& value) 
+{
+    // 1. fill="none" 
+    if (value == "none") {
+        fillType = FillType::None;
+        fillColor = Color(0, 0, 0, 0);
+    }
+
+    // 2. fill="url(#id)" → Linear Gradient
+    else if (value.rfind("url(", 0) == 0)
+    {
+        fillType = FillType::LinearGradient;
+
+        size_t start = value.find('#');
+        size_t end = value.find(')', start);
+
+        if (start != string::npos && end != string::npos && document)
         {
-            size_t colonPos = segment.find(':');
-            if (colonPos != string::npos)
-            {
-                string key = segment.substr(0, colonPos);
-                string val = segment.substr(colonPos + 1);
-
-                // Cắt khoảng trắng thừa (Trim spaces)
-                while (!key.empty() && isspace((unsigned char)key.front())) key.erase(0, 1);
-                while (!key.empty() && isspace((unsigned char)key.back())) key.pop_back();
-                while (!val.empty() && isspace((unsigned char)val.front())) val.erase(0, 1);
-                while (!val.empty() && isspace((unsigned char)val.back())) val.pop_back();
-
-                // Cập nhật giá trị nếu tìm thấy trong style
-                if (key == "fill") fillStr = val;
-                else if (key == "stroke") strokeStr = val;
-                else if (key == "stroke-width") strokeWidth = (float)atof(val.c_str());
-                else if (key == "fill-opacity") fillOpacity = (float)atof(val.c_str());
-                else if (key == "stroke-opacity") strokeOpacity = (float)atof(val.c_str());
-            }
+            string id = value.substr(start + 1, end - start - 1);
+            fillGradient = document->GetLinearGradient(id);
         }
     }
 
-    // 3. XỬ LÝ FILL COLOR (Dựa trên fillStr đã parse được)
-    if (!fillStr.empty())
+    // 3. fill="#RRGGBB" hoặc "#RGB" 
+    else if (!value.empty() && value[0] == '#') {
+        fillType = FillType::Solid;
+
+        string hex = value.substr(1);
+        int r = 0, g = 0, b = 0;
+
+        if (hex.length() >= 6) {
+            r = Hex2Int(hex[0]) * 16 + Hex2Int(hex[1]);
+            g = Hex2Int(hex[2]) * 16 + Hex2Int(hex[3]);
+            b = Hex2Int(hex[4]) * 16 + Hex2Int(hex[5]);
+        }
+        else if (hex.length() >= 3) {
+            r = Hex2Int(hex[0]) * 17;
+            g = Hex2Int(hex[1]) * 17;
+            b = Hex2Int(hex[2]) * 17;
+        }
+
+        fillColor = Color(
+            (BYTE)(fillOpacity * 255),
+            r, g, b
+        );
+    }
+
+    // 4. fill="rgb(r,g,b)"
+    else if (value.rfind("rgb", 0) == 0) {
+        fillType = FillType::Solid;
+
+        vector<float> vals;
+        GetNumbers(value, vals); // lấy r, g, b
+
+        if (vals.size() >= 3) {
+            int r = (int)vals[0];
+            int g = (int)vals[1];
+            int b = (int)vals[2];
+
+            // Nếu > 255 thì lấy 255, nếu < 0 thì lấy 0
+            if (r > 255) r = 255; else if (r < 0) r = 0;
+            if (g > 255) g = 255; else if (g < 0) g = 0;
+            if (b > 255) b = 255; else if (b < 0) b = 0;
+
+            fillColor = Color(
+                (BYTE)(fillOpacity * 255),
+                (BYTE)r,
+                (BYTE)g,
+                (BYTE)b
+            );
+        
+        }
+    }
+    // 5. NameColor
+    else
     {
-        // Trim fillStr lần nữa cho chắc
-        string s = fillStr;
+        Color namedC;
+        // Gọi hàm tra cứu bảng màu (đã thêm ở trên)
+        if (GetNamedColor(value, namedC))
+        {
+            fillType = FillType::Solid;
+            // Kết hợp màu tìm được với độ trong suốt hiện tại
+            fillColor = Color(
+                (BYTE)(fillOpacity * 255),
+                namedC.GetR(),
+                namedC.GetG(),
+                namedC.GetB()
+            );
+        }
+        else
+        {
+            // Nếu không tìm thấy màu nào -> Fallback về None (Không tô)
+            fillType = FillType::Unset;
+            fillColor = Color(0, 0, 0, 0);
+        }
+    }
+}
+
+void SVGElement::ParseStrokeValue(const string& value) 
+{
+    // 1. stroke="none"
+    if (value == "none")
+    {
+        strokeColor = Color(0, 0, 0, 0);
+    }
+
+    // 2. stroke="#RRGGBB" / "#RGB"
+    else if (!value.empty() && value[0] == '#')
+    {
+        string hex = value.substr(1);
+        int r = 0, g = 0, b = 0;
+
+        if (hex.length() >= 6) {
+            r = Hex2Int(hex[0]) * 16 + Hex2Int(hex[1]);
+            g = Hex2Int(hex[2]) * 16 + Hex2Int(hex[3]);
+            b = Hex2Int(hex[4]) * 16 + Hex2Int(hex[5]);
+        }
+        else if (hex.length() >= 3) {
+            r = Hex2Int(hex[0]) * 17;
+            g = Hex2Int(hex[1]) * 17;
+            b = Hex2Int(hex[2]) * 17;
+        }
+
+        strokeColor = Color(
+            (BYTE)(strokeOpacity * 255),
+            r, g, b
+        );
+    }
+
+    // 3. stroke="rgb(r,g,b)"
+    else if (value.rfind("rgb", 0) == 0)
+    {
+        vector<float> vals;
+        GetNumbers(value, vals);
+
+        if (vals.size() >= 3)
+        {
+            strokeColor = Color(
+                (BYTE)(strokeOpacity * 255),
+                (BYTE)vals[0],
+                (BYTE)vals[1],
+                (BYTE)vals[2]
+            );
+        }
+    }
+
+    // 4. stroke="black", "red", ... 
+    else
+    {
+        Color namedC;
+        if (GetNamedColor(value, namedC))
+        {
+            strokeColor = Color(
+                (BYTE)(strokeOpacity * 255),
+                namedC.GetR(),
+                namedC.GetG(),
+                namedC.GetB()
+            );
+        }
+        else
+        {
+            // Fallback: không vẽ stroke
+            strokeColor = Color(0, 0, 0, 0);
+        }
+    }
+}
+
+void SVGElement::ParseStyle(map<string, string>& styles)
+{
+
+	// 1. Fill Opacity
+    auto it = styles.find("fill-opacity");
+    if (it != styles.end()) {
+        fillOpacity = (float)atof(it->second.c_str());
+    }
+
+	// 2. Stroke Opacity
+    it = styles.find("stroke-opacity");
+    if (it != styles.end()) {
+        strokeOpacity = (float)atof(it->second.c_str());
+    }
+
+    // 3. Fill color
+    it = styles.find("fill");
+    if (it != styles.end()) {
+        ParseFillValue(it->second);
+    }
+
+	// 4. Stroke color
+    it = styles.find("stroke");
+    if (it != styles.end()) {
+        ParseStrokeValue(it->second);
+    }
+
+	// 5. Stroke Width
+    it = styles.find("stroke-width");
+    if (it != styles.end()) {
+        strokeWidth = (float)atof(it->second.c_str());
+    }
+
+	// 6. Stroke Miter Limit
+    it = styles.find("stroke-miterlimit");
+    if (it != styles.end()) {
+        strokeMiterLimit = atof(it->second.c_str());
+    }
+}
+
+void SVGElement::Parse(xml_node<>* node)
+{
+	// ĐỌC STYLE TỪ THUỘC TÍNH style=""
+    if (auto attr = node->first_attribute("style")) {
+        map<string, string> styles;
+        ParseStyleString(attr->value(), styles);
+		ParseStyle(styles);
+    }
+
+	// GHI ĐÈ THUỘC TÍNH TRÊN NODE LÊN STYLE
+    // 1. Parse Opacity
+    if (auto attr = node->first_attribute("fill-opacity"))
+        fillOpacity = (float)atof(attr->value());
+    if (auto attr = node->first_attribute("stroke-opacity"))
+        strokeOpacity = (float)atof(attr->value());
+
+    // 2. Parse Fill Color
+    if (auto attr = node->first_attribute("fill"))
+    {
+        string s = attr->value();
+
+        // Trim whitespace 
         while (!s.empty() && isspace((unsigned char)s.front())) s.erase(0, 1);
         while (!s.empty() && isspace((unsigned char)s.back())) s.pop_back();
 
-        // Case 1: Không tô màu
-        if (s == "none") {
-            fillType = FillType::None;
-            fillColor = Color(0, 0, 0, 0);
-        }
-        // Case 2: Gradient (url)
-        else if (s.find("url(") == 0)
-        {
-            size_t start = s.find('#');
-            size_t end = s.find(')', start);
-
-            if (start != string::npos && end != string::npos && document)
-            {
-                string id = s.substr(start + 1, end - start - 1);
-
-                // Tìm Linear trước
-                fillGradient = document->GetLinearGradient(id);
-                if (fillGradient)
-                {
-                    fillType = FillType::LinearGradient;
-                }
-                else
-                {
-                    // Tìm Radial sau
-                    fillRadialGradient = document->GetRadialGradient(id);
-                    if (fillRadialGradient)
-                    {
-                        fillType = FillType::RadialGradient;
-                    }
-                }
-            }
-        }
-        // Case 3: Mã màu Hex (#RRGGBB)
-        else if (!s.empty() && s[0] == '#') {
-            fillType = FillType::Solid;
-            string hex = s.substr(1);
-            int r = 0, g = 0, b = 0;
-            if (hex.length() >= 6) {
-                r = Hex2Int(hex[0]) * 16 + Hex2Int(hex[1]);
-                g = Hex2Int(hex[2]) * 16 + Hex2Int(hex[3]);
-                b = Hex2Int(hex[4]) * 16 + Hex2Int(hex[5]);
-            }
-            else if (hex.length() >= 3) {
-                r = Hex2Int(hex[0]) * 17; g = Hex2Int(hex[1]) * 17; b = Hex2Int(hex[2]) * 17;
-            }
-            fillColor = Color((BYTE)(fillOpacity * 255), r, g, b);
-        }
-        // Case 4: RGB Function
-        else if (s.find("rgb") == 0) {
-            fillType = FillType::Solid;
-            vector<float> vals; GetNumbers(s, vals);
-            if (vals.size() >= 3) {
-                fillColor = Color((BYTE)(fillOpacity * 255), (int)vals[0], (int)vals[1], (int)vals[2]);
-            }
-        }
-        // Case 5: Tên màu (Named Colors)
-        else {
-            Color namedC;
-            if (GetNamedColor(s, namedC)) {
-                fillType = FillType::Solid;
-                fillColor = Color((BYTE)(fillOpacity * 255), namedC.GetR(), namedC.GetG(), namedC.GetB());
-            }
-            else {
-                fillType = FillType::Unset;
-            }
-        }
+		ParseFillValue(s);
     }
 
-    // 4. XỬ LÝ STROKE COLOR (Tương tự Fill)
-    if (!strokeStr.empty())
+    // 3. Parse Stroke Color
+    if (auto attr = node->first_attribute("stroke"))
     {
-        string s = strokeStr;
-        while (!s.empty() && isspace((unsigned char)s.front())) s.erase(0, 1);
+        string s = attr->value();
 
-        if (s == "none") strokeColor = Color(0, 0, 0, 0);
-        else if (!s.empty() && s[0] == '#') {
-            string hex = s.substr(1);
-            int r = 0, g = 0, b = 0;
-            if (hex.length() >= 6) { r = Hex2Int(hex[0]) * 16 + Hex2Int(hex[1]); g = Hex2Int(hex[2]) * 16 + Hex2Int(hex[3]); b = Hex2Int(hex[4]) * 16 + Hex2Int(hex[5]); }
-            else if (hex.length() >= 3) { r = Hex2Int(hex[0]) * 17; g = Hex2Int(hex[1]) * 17; b = Hex2Int(hex[2]) * 17; }
-            strokeColor = Color((BYTE)(strokeOpacity * 255), r, g, b);
-        }
-        // (Bạn có thể thêm parse rgb/named color cho stroke ở đây nếu cần, nhưng hex/none là phổ biến nhất)
+        // Trim whitespace
+        while (!s.empty() && isspace((unsigned char)s.front())) s.erase(0, 1);
+        while (!s.empty() && isspace((unsigned char)s.back())) s.pop_back();
+
+		ParseStrokeValue(s);
     }
 
     // 5. TRANSFORM (Giữ nguyên logic cũ của bạn)
