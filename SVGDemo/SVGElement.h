@@ -33,9 +33,12 @@ protected:
     Color strokeColor;
     float strokeOpacity;
     float strokeWidth;
-    Matrix transform;
     float strokeMiterLimit;
 
+    bool strokeColorSet;
+    bool strokeWidthSet;
+
+    Matrix transform;
     std::vector<float> strokeDashArray;
 
     SVGDocument* document;
@@ -45,38 +48,37 @@ protected:
     LineCap strokeLineCap;
     LineJoin strokeLineJoin;
 
+    string id;
+    string clipPathId;
+
+public:
+    string href;
+
+protected:
     Brush* CreateFillBrush(const RectF& bounds);
     Pen* CreateStrokePen();
+
+    void ApplyClip(Graphics& g);
 
     virtual RectF GetBounds() { return RectF(0, 0, 0, 0); }
 
 public:
-    SVGElement()
-        : fillColor(Color(255, 0, 0, 0)),
-        fillOpacity(1.0f),
-        strokeColor(Color(0, 0, 0, 0)),
-        strokeOpacity(1.0f),
-        strokeWidth(1.0f),
-        strokeMiterLimit(4.0f),
-        strokeLineCap(LineCapFlat),
-        strokeLineJoin(LineJoinMiter)
-    {
-        document = nullptr;
-        fillGradient = nullptr;
-        fillRadialGradient = nullptr;
-        fillType = FillType::Unset;
-        transform.Reset();
-    }
-
+    SVGElement();
     virtual ~SVGElement() {}
 
     void SetDocument(SVGDocument* doc) { document = doc; }
-    virtual void InheritFrom(const SVGElement& parent); // Kế thừa node cha trong element svg group
-	void ParseFillValue(const string& value); // Được gọi trong Parse()
-	void ParseStrokeValue(const string& value); // Được gọi trong Parse()
-	void ParseStyle(map<string, string>& styles); // Đọc style từ thẻ style trước
-	virtual void Parse(xml_node<>* node); // Phân tích cú pháp từ thẻ SVG rồi ghi đè có thuộc tính lên style sau
-    virtual void Draw(Graphics& graphics) = 0;
 
-    virtual RectF GetBoundingBox() { return RectF(0, 0, 0, 0); }
+    // Getter ID
+    string GetId() const { return id; }
+
+    virtual void InheritFrom(const SVGElement& parent);
+    virtual void Parse(rapidxml::xml_node<>* node);
+    virtual void Draw(Gdiplus::Graphics& g) = 0;
+    virtual Gdiplus::RectF GetBoundingBox() = 0;
+    virtual GraphicsPath* GetGraphicsPath() { return nullptr; }
+
+    void ParseFillValue(const string& value);
+    void ParseStrokeValue(const string& value);
+    void ParseTransform(const string& value);
+    void ParseStyle(const string& style);
 };

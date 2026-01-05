@@ -12,4 +12,11 @@ public:
     void Parse(rapidxml::xml_node<>* node) override;
     void Draw(Gdiplus::Graphics& g) override;
     Gdiplus::RectF GetBoundingBox() override;
+    Gdiplus::GraphicsPath* GetGraphicsPath() override {
+        Gdiplus::GraphicsPath* path = new Gdiplus::GraphicsPath();
+        path->AddEllipse(cx - r, cy - r, 2 * r, 2 * r);
+        if (!transform.IsIdentity()) path->Transform(&transform);
+        return path;
+    }
+
 };

@@ -15,12 +15,12 @@ namespace Gdiplus
 class MainApp
 {
 private:
-    SVGParser parser;
+    SVGParser* parser = nullptr;
     SVGRenderer renderer;
     bool needsAutoFit = false;
 
 public:
-    MainApp() = default;
+    MainApp();
     ~MainApp();
 
     bool LoadSVG(const std::string& filePath);
@@ -28,5 +28,10 @@ public:
     void Clear();
 
     SVGRenderer& GetRenderer() { return renderer; }
-    const std::vector<SVGElement*>& GetElements() const { return parser.GetElements(); }
+
+    const std::vector<SVGElement*>& GetElements() const {
+        if (parser) return parser->GetElements();
+        static std::vector<SVGElement*> empty;
+        return empty;
+    }
 };

@@ -15,18 +15,18 @@ void SVGRect::Parse(rapidxml::xml_node<>* node)
 void SVGRect::Draw(Gdiplus::Graphics& g)
 {
     auto state = g.Save();
+    ApplyClip(g);
+
     g.MultiplyTransform(&transform);
 
     RectF rect(x, y, width, height);
 
-    if (Brush* brush = CreateFillBrush(rect))
-    {
+    if (Brush* brush = CreateFillBrush(rect)) {
         g.FillRectangle(brush, rect);
         delete brush;
     }
 
-    if (Pen* pen = CreateStrokePen())
-    {
+    if (Pen* pen = CreateStrokePen()) {
         g.DrawRectangle(pen, rect);
         delete pen;
     }
@@ -37,4 +37,11 @@ void SVGRect::Draw(Gdiplus::Graphics& g)
 Gdiplus::RectF SVGRect::GetBoundingBox()
 {
     return Gdiplus::RectF(x, y, width, height);
+}
+
+GraphicsPath* SVGRect::GetGraphicsPath() {
+    GraphicsPath* p = new GraphicsPath();
+    p->AddRectangle(RectF(x, y, width, height));
+    p->Transform(&transform);
+    return p;
 }

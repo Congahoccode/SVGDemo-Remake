@@ -11,4 +11,5 @@ public:
     void Parse(rapidxml::xml_node<>* node) override;
     void Draw(Gdiplus::Graphics& g) override;
     Gdiplus::RectF GetBoundingBox() override;
+    GraphicsPath* GetGraphicsPath();
 };

@@ -24,15 +24,15 @@ static void GetPoints(const string& s, vector<PointF>& points)
 
 void SVGPolygon::Parse(rapidxml::xml_node<>* node)
 {
-    SVGElement::Parse(node); // Parse fill, stroke, transform...
+    SVGElement::Parse(node);
 
     // Parse danh sách điểm
     if (auto attr = node->first_attribute("points"))
     {
         GetPoints(attr->value(), points);
     }
+    fillMode = FillModeWinding;
 
-    fillMode = FillModeAlternate;
     if (auto attr = node->first_attribute("fill-rule")) {
         string rule = attr->value();
         if (rule == "nonzero") fillMode = FillModeWinding;

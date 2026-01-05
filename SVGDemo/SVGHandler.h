@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "SVGRenderer.h"
 
 class SVGHandler 

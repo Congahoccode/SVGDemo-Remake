@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "SVGElement.h" 
-#include "SVGLinearGradient.h" // Để lấy struct SVGGradientStop
+#include "SVGLinearGradient.h"
 #include <vector>
 #include <string>
 #include "rapidxml.hpp"
@@ -8,7 +8,6 @@
 
 using namespace Gdiplus;
 
-// Class này cần public các hàm GetStops để LinearGradient có thể kế thừa
 class SVGRadialGradient
 {
 private:
@@ -18,7 +17,6 @@ private:
     std::vector<SVGGradientStop> stops;
     bool userSpace = false;
 
-    // Matrix biến đổi (Quan trọng cho Instagram)
     Matrix transform;
 
 public:
@@ -29,6 +27,5 @@ public:
 
     PathGradientBrush* CreateBrush(const RectF& bounds) const;
 
-    // --- QUAN TRỌNG: Hàm này phải có để LinearGradient gọi ---
     const std::vector<SVGGradientStop>& GetStops() const { return stops; }
 };

@@ -8,10 +8,9 @@ using namespace Gdiplus;
 using namespace std;
 
 class SVGDocument;
-
 struct SVGGradientStop
 {
-    float offset;     // [0..1]
+    float offset = 0.0;     // [0..1]
     Color color;      // ARGB
 };
 
@@ -23,7 +22,6 @@ private:
     float x2 = 1, y2 = 0;
     bool userSpace = false;
     vector<SVGGradientStop> stops;
-    // Matrix để sửa Google Chrome
     Matrix transform;
 
 public:

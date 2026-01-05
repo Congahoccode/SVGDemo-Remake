@@ -15,7 +15,7 @@
 #include "SVGPath.h"
 #include "SVGDocument.h"
 
-class SVGParser 
+class SVGParser
 {
 private:
     std::vector<char> buffer;
@@ -28,5 +28,7 @@ public:
     std::vector<SVGElement*>& GetElements() { return elements; }
     static SVGElement* CreateElement(rapidxml::xml_node<>* node);
     const std::vector<SVGElement*>& GetElements() const { return elements; }
+    const SVGDocument& GetDocument() const { return document; }
+
     void Clear();
 };

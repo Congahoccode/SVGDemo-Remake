@@ -5,32 +5,47 @@
 
 using namespace Gdiplus;
 
+MainApp::MainApp()
+{
+    parser = new SVGParser();
+}
+
 MainApp::~MainApp()
 {
-    parser.Clear();
+    if (parser) {
+        parser->Clear();
+        delete parser;
+        parser = nullptr;
+    }
 }
 
 void MainApp::Clear()
 {
-    parser.Clear();
+    if (parser) {
+        parser->Clear();
+        delete parser;
+        parser = nullptr;
+    }
+    parser = new SVGParser();
+
     renderer.ResetTransform();
+    needsAutoFit = false;
 }
 
 bool MainApp::LoadSVG(const std::string& filePath)
 {
-    // 1. Dọn dẹp
     Clear();
+    if (!parser) parser = new SVGParser();
 
-    // 2. Parse file mới
-    bool ok = parser.ParseFile(filePath);
+    bool ok = parser->ParseFile(filePath);
+
     if (!ok)
     {
         std::wstring wFilePath(filePath.begin(), filePath.end());
-        std::cerr << "Không thể đọc File SVG: " << filePath << std::endl;
         return false;
     }
 
-    std::cout << "Đã đọc thành công " << parser.GetElements().size() << " phần tử SVG." << std::endl;
+    // Đánh dấu cần AutoFit
     needsAutoFit = true;
 
     return true;
@@ -38,24 +53,8 @@ bool MainApp::LoadSVG(const std::string& filePath)
 
 void MainApp::Render(Graphics& g)
 {
-    // 1. Nếu có hình
-    if (!parser.GetElements().empty())
-    {
-        //2. AutoFit
-        if (needsAutoFit)
-        {
-            RectF bounds;
-            g.GetVisibleClipBounds(&bounds); // Lấy kích thước màn hình hiện tại
-            renderer.AutoFit((int)bounds.Width, (int)bounds.Height, parser.GetElements());
-
-            needsAutoFit = false;
-        }
-
-        // 3. Vẽ hình
-        renderer.Render(g, parser.GetElements());
-    }
-    // 4. Nếu chưa có hình -> Hiện thông báo
-    else
+    // Kiểm tra an toàn
+    if (!parser || parser->GetElements().empty())
     {
         SolidBrush brush(Color(128, 128, 128));
         FontFamily fontFamily(L"Arial");
@@ -67,5 +66,28 @@ void MainApp::Render(Graphics& g)
         RectF bounds;
         g.GetVisibleClipBounds(&bounds);
         g.DrawString(L"Vui lòng kéo thả File SVG vào đây!", -1, &font, bounds, &format, &brush);
+        return;
     }
+
+    if (needsAutoFit)
+    {
+        RectF bounds;
+        g.GetVisibleClipBounds(&bounds);
+
+        const SVGDocument& doc = parser->GetDocument();
+
+        if (doc.hasViewBox && doc.viewW > 0 && doc.viewH > 0)
+        {
+            renderer.FitViewBox((int)bounds.Width, (int)bounds.Height,
+                doc.viewX, doc.viewY, doc.viewW, doc.viewH);
+        }
+        else
+        {
+            renderer.AutoFit((int)bounds.Width, (int)bounds.Height, parser->GetElements());
+        }
+
+        needsAutoFit = false;
+    }
+
+    renderer.Render(g, parser->GetElements());
 }

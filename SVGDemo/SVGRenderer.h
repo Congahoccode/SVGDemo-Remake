@@ -9,30 +9,26 @@ using namespace std;
 class SVGRenderer
 {
 private:
-    Color backgroundColor;     // Màu nền
-    PointF offset;             // Pan (Dịch chuyển)
-    float zoomFactor = 1.0f;   // Zoom (Phóng to)
-    float rotationAngle = 0.0f;// Xoay
+    Color backgroundColor;
+    float scale;
+    PointF offset;
+    float zoomFactor = 1.0f;
+    float rotationAngle = 0.0f;
 
 public:
-    SVGRenderer()
-        : backgroundColor(Gdiplus::Color(255, 255, 255)),
-        offset(0, 0)
-    {
-    }
+    SVGRenderer() : backgroundColor(Color(255, 255, 255)),scale(1.0f), offset(0, 0){}
 
     void SetBackgroundColor(const Color& color) { backgroundColor = color; }
-    void SetOffset(const PointF& p) { offset = p; }
-
     void Render(Graphics& g, const vector<SVGElement*>& elements);
 
     void Zoom(float factor);
     void Pan(float dx, float dy);
     void Rotate(float degrees);
-    void AutoFit(int screenWidth, int screenHeight, const std::vector<SVGElement*>& elements);
 
-    void ResetTransform()
-    {
+    void AutoFit(int screenWidth, int screenHeight, const std::vector<SVGElement*>& elements);
+    void FitViewBox(int screenWidth, int screenHeight, float vx, float vy, float vw, float vh);
+
+    void ResetTransform() {
         offset = PointF(0, 0);
         zoomFactor = 1.0f;
         rotationAngle = 0.0f;

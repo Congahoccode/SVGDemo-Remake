@@ -2,48 +2,101 @@
 #include "SVGParser.h"
 #include "SVGLinearGradient.h"
 #include "SVGRadialGradient.h"
+#include "SVGHelper.h"
 #include <iostream>
+#include <sstream>
+#include <vector>
 
-bool SVGParser::ParseFile(const std::string& filePath) 
+using namespace std;
+
+bool SVGParser::ParseFile(const std::string& filePath)
 {
+    // Dọn dẹp dữ liệu cũ (bao gồm cả doc.clear())
+    Clear();
+
     std::ifstream file(filePath);
     if (!file.is_open()) return false;
 
-    buffer = std::vector<char>((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-    buffer.push_back('\0');
+    // Đọc toàn bộ file vào buffer
+    file.seekg(0, std::ios::end);
+    size_t size = file.tellg();
+    file.seekg(0, std::ios::beg);
 
-    doc.parse<0>(&buffer[0]);
+    if (size == 0) return false;
+
+    // Resize buffer để chứa dữ liệu mới
+    buffer.resize(size + 1);
+    file.read(&buffer[0], size);
+    buffer[size] = '\0';
+
+    try {
+        // Parse XML (Sử dụng buffer vừa đọc)
+        doc.parse<rapidxml::parse_default>(&buffer[0]);
+    }
+    catch (...) {
+        return false;
+    }
+
     rapidxml::xml_node<>* root = doc.first_node("svg");
     if (!root) return false;
 
-    // Parse ALL <defs>
-    for (auto* node = root->first_node("defs");
-        node;
-        node = node->next_sibling("defs"))
-    {
-        for (auto* def = node->first_node(); def; def = def->next_sibling())
-        {
-            std::string name = def->name();
+    // --- 1. Parse Header Info ---
+    if (auto attr = root->first_attribute("width")) document.width = ParseUnit(attr->value());
+    if (auto attr = root->first_attribute("height")) document.height = ParseUnit(attr->value());
 
-            if (name == "linearGradient")
-            {
+    if (auto attr = root->first_attribute("viewBox")) {
+        std::string vb = attr->value();
+        std::vector<float> vals;
+        ParseNumberList(vb.c_str(), vals);
+
+        if (vals.size() >= 4) {
+            document.viewX = vals[0];
+            document.viewY = vals[1];
+            document.viewW = vals[2];
+            document.viewH = vals[3];
+            document.hasViewBox = true;
+        }
+    }
+
+    // --- 2. Parse Definitions (Gradient) ---
+    // Tìm trong <defs>
+    for (auto* node = root->first_node("defs"); node; node = node->next_sibling("defs")) {
+        for (auto* def = node->first_node(); def; def = def->next_sibling()) {
+            std::string name = def->name();
+            if (name == "linearGradient") {
                 auto* grad = new SVGLinearGradient();
                 grad->Parse(def, &document);
                 document.AddLinearGradient(grad);
             }
-            else if (name == "radialGradient")
-            {
+            else if (name == "radialGradient") {
                 auto* grad = new SVGRadialGradient();
                 grad->Parse(def, &document);
                 document.AddRadialGradient(grad);
-			}
+            }
+        }
+    }
+    // Tìm Gradient nằm ngoài (trực tiếp trong svg)
+    for (auto* node = root->first_node(); node; node = node->next_sibling()) {
+        std::string name = node->name();
+        if (name == "linearGradient") {
+            auto* grad = new SVGLinearGradient();
+            grad->Parse(node, &document);
+            document.AddLinearGradient(grad);
+        }
+        else if (name == "radialGradient") {
+            auto* grad = new SVGRadialGradient();
+            grad->Parse(node, &document);
+            document.AddRadialGradient(grad);
         }
     }
 
-	// Parse drawable elements (skip <defs>)
+    // --- 3. Parse Elements ---
     for (auto* node = root->first_node(); node; node = node->next_sibling())
     {
-        if (std::string(node->name()) == "defs")
+        string name = node->name();
+        // Bỏ qua các thẻ metadata/defs
+        if (name == "defs" || name == "linearGradient" || name == "radialGradient" ||
+            name == "style" || name == "metadata" || name == "title" || name == "desc")
             continue;
 
         SVGElement* element = CreateElement(node);
@@ -53,36 +106,31 @@ bool SVGParser::ParseFile(const std::string& filePath)
         element->Parse(node);
         elements.push_back(element);
     }
+
     return true;
 }
 
-SVGElement* SVGParser::CreateElement(rapidxml::xml_node<>* node) 
+SVGElement* SVGParser::CreateElement(rapidxml::xml_node<>* node)
 {
     std::string name = node->name();
-
     if (name == "rect") return new SVGRect();
     if (name == "circle") return new SVGCircle();
-    if (name == "ellipse") return new SVGEllipse();
+    if (name == "ellipse") return new SVGEclipse();
     if (name == "line") return new SVGLine();
     if (name == "polygon") return new SVGPolygon();
     if (name == "polyline") return new SVGPolyline();
     if (name == "text") return new SVGText();
     if (name == "g") return new SVGGroup();
-	if (name == "path") return new SVGPath();
-
+    if (name == "path") return new SVGPath();
     return nullptr;
 }
 
 void SVGParser::Clear()
 {
-    // Xóa bộ nhớ các hình đã tạo
-    for (auto* e : elements)
-        delete e;
+    for (auto* e : elements) delete e;
     elements.clear();
-
-    // Xóa bộ nhớ đệm file
-    buffer.clear();
-
-    // Xóa gradient trong document (Biến document nằm trong Parser)
     document.Clear();
+    document.hasViewBox = false;
+    document.width = 0; document.height = 0;
+    doc.clear();
 }

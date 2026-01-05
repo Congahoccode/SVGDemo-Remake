@@ -7,7 +7,7 @@
 using namespace Gdiplus;
 using namespace std;
 
-class SVGParser; // Forward declaration
+class SVGParser;
 
 class SVGGroup : public SVGElement
 {
@@ -21,4 +21,5 @@ public:
 
     void Draw(Graphics& g) override;
     RectF GetBoundingBox() override;
+    GraphicsPath* GetGraphicsPath();
 };
