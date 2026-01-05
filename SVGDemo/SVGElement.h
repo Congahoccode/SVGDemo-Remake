@@ -80,5 +80,5 @@ public:
     void ParseFillValue(const string& value);
     void ParseStrokeValue(const string& value);
     void ParseTransform(const string& value);
-    void ParseStyle(const string& style);
+    //void ParseStyle(const string& style);
 };

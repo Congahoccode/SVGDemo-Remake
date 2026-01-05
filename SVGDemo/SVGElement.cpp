@@ -94,10 +94,6 @@ void SVGElement::Parse(xml_node<>* node)
         }
     }
 
-    // --- Fill & Stroke (Màu sắc) ---
-    if (attrs.count("fill")) ParseFillValue(attrs["fill"]);
-    if (attrs.count("stroke")) ParseStrokeValue(attrs["stroke"]);
-
     // --- Stroke Width & Style ---
     if (attrs.count("stroke-width")) {
         strokeWidth = ParseUnit(attrs["stroke-width"]);
@@ -120,6 +116,10 @@ void SVGElement::Parse(xml_node<>* node)
         else strokeLineJoin = LineJoinMiter;
     }
 
+    // --- Fill & Stroke (Màu sắc) ---
+    if (attrs.count("fill")) ParseFillValue(attrs["fill"]);
+    if (attrs.count("stroke")) ParseStrokeValue(attrs["stroke"]);
+
     // --- Opacity (Xử lý cẩn thận để tránh lỗi chồng màu) ---
     float baseOpacity = 1.0f;
     if (attrs.count("opacity")) {
@@ -131,14 +131,12 @@ void SVGElement::Parse(xml_node<>* node)
         const char* ptr = attrs["fill-opacity"].c_str();
         fillOpacity = ParseNumber(ptr);
     }
-    fillOpacity *= baseOpacity;
 
     // Stroke Opacity
     if (attrs.count("stroke-opacity")) {
         const char* ptr = attrs["stroke-opacity"].c_str();
         strokeOpacity = ParseNumber(ptr);
     }
-    strokeOpacity *= baseOpacity;
 
     // --- Transform ---
     if (attrs.count("transform")) {
@@ -148,26 +146,26 @@ void SVGElement::Parse(xml_node<>* node)
 }
 
 // Các hàm bổ trợ parse lẻ 
-void SVGElement::ParseStyle(const string& style) {
-    stringstream ss(style);
-    string segment;
-    while (getline(ss, segment, ';')) {
-        size_t colon = segment.find(':');
-        if (colon != string::npos) {
-            string key = segment.substr(0, colon);
-            string val = segment.substr(colon + 1);
-            key.erase(0, key.find_first_not_of(" \t")); key.erase(key.find_last_not_of(" \t") + 1);
-            val.erase(0, val.find_first_not_of(" \t")); val.erase(val.find_last_not_of(" \t") + 1);
-
-            if (key == "fill") ParseFillValue(val);
-            else if (key == "stroke") ParseStrokeValue(val);
-            else if (key == "stroke-width") { strokeWidth = ParseUnit(val); strokeWidthSet = true; }
-            else if (key == "opacity") { float op = ParseUnit(val); fillOpacity = op; strokeOpacity = op; }
-            else if (key == "fill-opacity") fillOpacity = ParseUnit(val);
-            else if (key == "stroke-opacity") strokeOpacity = ParseUnit(val);
-        }
-    }
-}
+//void SVGElement::ParseStyle(const string& style) {
+//    stringstream ss(style);
+//    string segment;
+//    while (getline(ss, segment, ';')) {
+//        size_t colon = segment.find(':');
+//        if (colon != string::npos) {
+//            string key = segment.substr(0, colon);
+//            string val = segment.substr(colon + 1);
+//            key.erase(0, key.find_first_not_of(" \t")); key.erase(key.find_last_not_of(" \t") + 1);
+//            val.erase(0, val.find_first_not_of(" \t")); val.erase(val.find_last_not_of(" \t") + 1);
+//
+//            if (key == "fill") ParseFillValue(val);
+//            else if (key == "stroke") ParseStrokeValue(val);
+//            else if (key == "stroke-width") { strokeWidth = ParseUnit(val); strokeWidthSet = true; }
+//            else if (key == "opacity") { float op = ParseUnit(val); fillOpacity = op; strokeOpacity = op; }
+//            else if (key == "fill-opacity") fillOpacity = ParseUnit(val);
+//            else if (key == "stroke-opacity") strokeOpacity = ParseUnit(val);
+//        }
+//    }
+//}
 
 void SVGElement::ParseFillValue(const string& value)
 {
@@ -221,20 +219,19 @@ void SVGElement::InheritFrom(const SVGElement& parent)
         this->fillColor = parent.fillColor;
         this->fillGradient = parent.fillGradient;
         this->fillRadialGradient = parent.fillRadialGradient;
-        // Nếu kế thừa fill, cũng kế thừa luôn opacity hiện tại của cha
-        this->fillOpacity = parent.fillOpacity;
     }
 
     if (!this->strokeColorSet && parent.strokeColorSet) {
         this->strokeColor = parent.strokeColor;
-        this->strokeOpacity = parent.strokeOpacity; // Kế thừa opacity của stroke
         this->strokeLineCap = parent.strokeLineCap;
         this->strokeLineJoin = parent.strokeLineJoin;
+        this->strokeColorSet = true;
     }
 
     if (!this->strokeWidthSet && parent.strokeWidthSet) {
         this->strokeWidth = parent.strokeWidth;
         this->strokeMiterLimit = parent.strokeMiterLimit;
+		this->strokeWidthSet = true;
     }
 }
 
