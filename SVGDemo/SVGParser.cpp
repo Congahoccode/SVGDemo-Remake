@@ -29,11 +29,13 @@ bool SVGParser::ParseFile(const std::string& filePath)
     file.read(&buffer[0], size);
     buffer[size] = '\0';
 
-    try {
+    try 
+    {
         // Parse XML (Sử dụng buffer vừa đọc)
         doc.parse<rapidxml::parse_default>(&buffer[0]);
     }
-    catch (...) {
+    catch (...)
+    {
         return false;
     }
 
@@ -60,15 +62,19 @@ bool SVGParser::ParseFile(const std::string& filePath)
 
     // --- 2. Parse Definitions (Gradient) ---
     // Tìm trong <defs>
-    for (auto* node = root->first_node("defs"); node; node = node->next_sibling("defs")) {
-        for (auto* def = node->first_node(); def; def = def->next_sibling()) {
+    for (auto* node = root->first_node("defs"); node; node = node->next_sibling("defs")) 
+    {
+        for (auto* def = node->first_node(); def; def = def->next_sibling()) 
+        {
             std::string name = def->name();
-            if (name == "linearGradient") {
+            if (name == "linearGradient") 
+            {
                 auto* grad = new SVGLinearGradient();
                 grad->Parse(def, &document);
                 document.AddLinearGradient(grad);
             }
-            else if (name == "radialGradient") {
+            else if (name == "radialGradient") 
+            {
                 auto* grad = new SVGRadialGradient();
                 grad->Parse(def, &document);
                 document.AddRadialGradient(grad);
@@ -76,14 +82,17 @@ bool SVGParser::ParseFile(const std::string& filePath)
         }
     }
     // Tìm Gradient nằm ngoài (trực tiếp trong svg)
-    for (auto* node = root->first_node(); node; node = node->next_sibling()) {
+    for (auto* node = root->first_node(); node; node = node->next_sibling()) 
+    {
         std::string name = node->name();
-        if (name == "linearGradient") {
+        if (name == "linearGradient") 
+        {
             auto* grad = new SVGLinearGradient();
             grad->Parse(node, &document);
             document.AddLinearGradient(grad);
         }
-        else if (name == "radialGradient") {
+        else if (name == "radialGradient") 
+        {
             auto* grad = new SVGRadialGradient();
             grad->Parse(node, &document);
             document.AddRadialGradient(grad);

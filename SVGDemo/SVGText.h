@@ -6,7 +6,8 @@
 class SVGText : public SVGElement
 {
 public:
-    enum class TextAnchor {
+    enum class TextAnchor 
+    {
         Start,
         Middle,
         End
@@ -19,7 +20,6 @@ private:
     std::wstring content;
     std::wstring fontFamily = L"Times New Roman";
     float fontSize = 16.0f;
-
     Gdiplus::FontStyle fontStyle = Gdiplus::FontStyleRegular;
     TextAnchor anchor = TextAnchor::Start;
 

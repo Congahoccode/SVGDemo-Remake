@@ -57,7 +57,6 @@ void SVGDocument::Clear()
     for (auto& p : radialGradients) delete p.second;
     radialGradients.clear();
     elementMap.clear();
-
     width = 0; height = 0;
     viewX = 0; viewY = 0; viewW = 0; viewH = 0;
     hasViewBox = false;

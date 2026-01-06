@@ -48,19 +48,24 @@ void SVGText::Parse(rapidxml::xml_node<>* node)
 
         if (name == "x") x = ParseUnit(val);
         else if (name == "y") y = ParseUnit(val);
-        else if (name == "font-family") {
+        else if (name == "font-family") 
+        {
             fontFamily = wstring(val.begin(), val.end());
         }
-        else if (name == "font-size") {
+        else if (name == "font-size") 
+        {
             fontSize = ParseUnit(val);
         }
-        else if (name == "font-weight") {
+        else if (name == "font-weight") 
+        {
             if (val == "bold") fontStyle = (FontStyle)(fontStyle | FontStyleBold);
         }
-        else if (name == "font-style") {
+        else if (name == "font-style") 
+        {
             if (val == "italic") fontStyle = (FontStyle)(fontStyle | FontStyleItalic);
         }
-        else if (name == "text-anchor") {
+        else if (name == "text-anchor") 
+        {
             if (val == "middle") anchor = TextAnchor::Middle;
             else if (val == "end") anchor = TextAnchor::End;
         }

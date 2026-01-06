@@ -16,9 +16,7 @@ private:
 public:
     SVGGroup() {};
     ~SVGGroup();
-
     void Parse(xml_node<>* node) override;
-
     void Draw(Graphics& g) override;
     RectF GetBoundingBox() override;
     GraphicsPath* GetGraphicsPath();

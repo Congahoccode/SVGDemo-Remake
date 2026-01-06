@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <string>
-
 #include "SVGParser.h"
 #include "SVGRenderer.h"
 #include "SVGElement.h"
@@ -26,9 +25,7 @@ public:
     bool LoadSVG(const std::string& filePath);
     void Render(Gdiplus::Graphics& g);
     void Clear();
-
     SVGRenderer& GetRenderer() { return renderer; }
-
     const std::vector<SVGElement*>& GetElements() const {
         if (parser) return parser->GetElements();
         static std::vector<SVGElement*> empty;

@@ -16,16 +16,11 @@ private:
     float fx = 0.5f, fy = 0.5f;
     std::vector<SVGGradientStop> stops;
     bool userSpace = false;
-
     Matrix transform;
-
 public:
     SVGRadialGradient() { transform.Reset(); }
-
     std::string GetId() const { return id; }
     void Parse(rapidxml::xml_node<>* node, SVGDocument* doc);
-
     PathGradientBrush* CreateBrush(const RectF& bounds) const;
-
     const std::vector<SVGGradientStop>& GetStops() const { return stops; }
 };

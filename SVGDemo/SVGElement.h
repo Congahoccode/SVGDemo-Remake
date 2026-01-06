@@ -34,20 +34,16 @@ protected:
     float strokeOpacity;
     float strokeWidth;
     float strokeMiterLimit;
-
     bool strokeColorSet;
     bool strokeWidthSet;
-
     Matrix transform;
     std::vector<float> strokeDashArray;
-
     SVGDocument* document;
     SVGLinearGradient* fillGradient;
     SVGRadialGradient* fillRadialGradient;
     FillType fillType = FillType::Unset;
     LineCap strokeLineCap;
     LineJoin strokeLineJoin;
-
     string id;
     string clipPathId;
 
@@ -58,15 +54,12 @@ protected:
     Gdiplus::FillMode fillRule = Gdiplus::FillModeWinding;
     Brush* CreateFillBrush(const RectF& bounds);
     Pen* CreateStrokePen();
-
     void ApplyClip(Graphics& g);
-
     virtual RectF GetBounds() { return RectF(0, 0, 0, 0); }
 
 public:
     SVGElement();
     virtual ~SVGElement() {}
-
     void SetDocument(SVGDocument* doc) { document = doc; }
 
     // Getter ID
@@ -81,5 +74,4 @@ public:
     void ParseFillValue(const string& value);
     void ParseStrokeValue(const string& value);
     void ParseTransform(const string& value);
-    //void ParseStyle(const string& style);
 };

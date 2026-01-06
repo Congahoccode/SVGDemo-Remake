@@ -36,24 +36,18 @@ bool MainApp::LoadSVG(const std::string& filePath)
 {
     Clear();
     if (!parser) parser = new SVGParser();
-
     bool ok = parser->ParseFile(filePath);
-
     if (!ok)
     {
         std::wstring wFilePath(filePath.begin(), filePath.end());
         return false;
     }
-
-    // Đánh dấu cần AutoFit
     needsAutoFit = true;
-
     return true;
 }
 
 void MainApp::Render(Graphics& g)
 {
-    // Kiểm tra an toàn
     if (!parser || parser->GetElements().empty())
     {
         SolidBrush brush(Color(128, 128, 128));

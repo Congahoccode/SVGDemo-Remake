@@ -46,28 +46,23 @@ void SVGPolygon::Draw(Graphics& g)
 
     GraphicsState state = g.Save();
     g.MultiplyTransform(&transform);
-
     RectF bounds = GetBoundingBox();
-
     if (auto* brush = CreateFillBrush(bounds))
     {
         g.FillPolygon(brush, points.data(), (INT)points.size(), fillMode);
         delete brush;
     }
-
     if (auto* pen = CreateStrokePen())
     {
         g.DrawPolygon(pen, points.data(), (INT)points.size());
         delete pen;
     }
-
     g.Restore(state);
 }
 
 RectF SVGPolygon::GetBoundingBox()
 {
     if (points.empty()) return RectF(0, 0, 0, 0);
-
     float minX = points[0].X, maxX = points[0].X;
     float minY = points[0].Y, maxY = points[0].Y;
 

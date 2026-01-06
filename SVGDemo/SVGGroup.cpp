@@ -2,14 +2,17 @@
 #include "SVGParser.h"
 #include "SVGGroup.h"
 
-SVGGroup::~SVGGroup() {
+SVGGroup::~SVGGroup() 
+{
     for (auto child : children) delete child;
     children.clear();
 }
 
-void SVGGroup::Parse(xml_node<>* node) {
+void SVGGroup::Parse(xml_node<>* node) 
+{
     SVGElement::Parse(node);
-    for (auto* child = node->first_node(); child; child = child->next_sibling()) {
+    for (auto* child = node->first_node(); child; child = child->next_sibling()) 
+    {
         SVGElement* element = SVGParser::CreateElement(child);
         if (!element) continue;
         element->SetDocument(this->document);
@@ -19,20 +22,21 @@ void SVGGroup::Parse(xml_node<>* node) {
     }
 }
 
-void SVGGroup::Draw(Graphics& g) {
+void SVGGroup::Draw(Graphics& g) 
+{
     auto state = g.Save();
-
     ApplyClip(g);
-
     g.MultiplyTransform(&transform);
     for (auto* c : children) c->Draw(g);
     g.Restore(state);
 }
 
-RectF SVGGroup::GetBoundingBox() {
+RectF SVGGroup::GetBoundingBox() 
+{
     RectF totalRect(0, 0, 0, 0);
     bool first = true;
-    for (auto* c : children) {
+    for (auto* c : children) 
+    {
         RectF r = c->GetBoundingBox();
         if (r.Width <= 0 || r.Height <= 0) continue;
         if (first) { totalRect = r; first = false; }
@@ -41,19 +45,23 @@ RectF SVGGroup::GetBoundingBox() {
     return totalRect;
 }
 
-GraphicsPath* SVGGroup::GetGraphicsPath() {
+GraphicsPath* SVGGroup::GetGraphicsPath() 
+{
     GraphicsPath* groupPath = new GraphicsPath();
-    for (auto* c : children) {
+    for (auto* c : children) 
+    {
         GraphicsPath* childPath = c->GetGraphicsPath();
         if (childPath) {
             groupPath->AddPath(childPath, FALSE);
             delete childPath;
         }
-        if (!c->href.empty()) {
+        if (!c->href.empty()) 
+        {
             SVGElement* target = document->GetElementById(c->href);
             if (target) {
                 GraphicsPath* targetPath = target->GetGraphicsPath();
-                if (targetPath) {
+                if (targetPath) 
+                {
                     groupPath->AddPath(targetPath, FALSE);
                     delete targetPath;
                 }

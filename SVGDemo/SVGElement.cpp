@@ -125,7 +125,7 @@ void SVGElement::Parse(xml_node<>* node)
     if (attrs.count("fill")) ParseFillValue(attrs["fill"]);
     if (attrs.count("stroke")) ParseStrokeValue(attrs["stroke"]);
 
-    // --- Opacity (Xử lý cẩn thận để tránh lỗi chồng màu) ---
+    // Opacity
     float baseOpacity = 1.0f;
     if (attrs.count("opacity")) {
         const char* ptr = attrs["opacity"].c_str();
@@ -227,7 +227,6 @@ Brush* SVGElement::CreateFillBrush(const RectF& bounds)
         return new SolidBrush(Color((BYTE)(fillOpacity * 255), 0, 0, 0));
 
     if (fillType == FillType::Solid) {
-        // Áp dụng Alpha duy nhất tại đây: Alpha gốc của màu * fillOpacity
         BYTE a = (BYTE)(fillColor.GetA() * fillOpacity);
         return new SolidBrush(Color(a, fillColor.GetR(), fillColor.GetG(), fillColor.GetB()));
     }

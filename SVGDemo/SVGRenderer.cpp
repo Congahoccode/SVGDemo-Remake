@@ -60,28 +60,21 @@ void SVGRenderer::AutoFit(int screenWidth, int screenHeight, const std::vector<S
     {
         if (!e) continue;
         RectF r = e->GetBoundingBox();
-
         if (r.Width <= 0 || r.Height <= 0 || r.Width > 1000000) continue;
-
         if (first) { totalRect = r; first = false; }
         else { totalRect.Union(totalRect, totalRect, r); }
     }
-
     if (totalRect.Width <= 0 || totalRect.Height <= 0) return;
-
     ResetTransform();
-
     float padding = 40.0f;
     float availW = (float)screenWidth - padding;
     float availH = (float)screenHeight - padding;
     if (availW < 1) availW = 1;
     if (availH < 1) availH = 1;
-
     // Tính tỷ lệ scale
     float scaleX = availW / totalRect.Width;
     float scaleY = availH / totalRect.Height;
     zoomFactor = (std::min)(scaleX, scaleY);
-
     // Tính offset
     float midX = totalRect.X + totalRect.Width / 2.0f;
     float midY = totalRect.Y + totalRect.Height / 2.0f;

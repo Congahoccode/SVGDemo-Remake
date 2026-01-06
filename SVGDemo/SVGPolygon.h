@@ -7,7 +7,6 @@ class SVGPolygon : public SVGElement
 private:
     std::vector<Gdiplus::PointF> points;
     Gdiplus::FillMode fillMode;
-
 public:
     SVGPolygon() : fillMode(Gdiplus::FillModeWinding) {}
     void Parse(rapidxml::xml_node<>* node) override;

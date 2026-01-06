@@ -10,7 +10,6 @@
 using namespace Gdiplus;
 using namespace std;
 
-// Wrapper đơn giản gọi về Helper
 static float GetNextNumber(const char*& ptr)
 {
     return ParseNumber(ptr);
@@ -24,7 +23,6 @@ static bool GetNextFlag(const char*& ptr)
     return false;
 }
 
-// ... (Giữ nguyên hàm AddArcToBezier để tiết kiệm chỗ, không thay đổi logic vẽ cong) ...
 static void AddArcToBezier(GraphicsPath& path, float x0, float y0, float rx, float ry,
     float angle, bool largeArc, bool sweep, float x, float y)
 {

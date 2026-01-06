@@ -7,10 +7,10 @@
 #include <algorithm>
 #include <cmath>
 
-// Tạo locale chuẩn C (dùng dấu chấm)
+// Tạo locale dùng dấu chấm
 static _locale_t c_locale = _create_locale(LC_NUMERIC, "C");
 
-// Hàm đọc số thực chuẩn xác
+// Hàm đọc số thực
 inline float ParseNumber(const char*& ptr)
 {
     while (*ptr && (*ptr == ' ' || *ptr == ',' || *ptr == '\t' || *ptr == '\n' || *ptr == '\r')) ptr++;
@@ -57,7 +57,7 @@ inline float ParseUnit(const std::string& str, float defaultVal = 0.0f)
     return val;
 }
 
-// --- XỬ LÝ MÀU SẮC ---
+// XỬ LÝ MÀU SẮC
 
 inline int ClampColorValue(int val) {
     if (val < 0) return 0;
@@ -170,7 +170,6 @@ inline void ParseTransformString(const std::string& t, Gdiplus::Matrix& matrix) 
         std::string command = s.substr(start, openParen - start);
         size_t closeParen = s.find(')', openParen);
         if (closeParen == std::string::npos) break;
-
         std::string args = s.substr(openParen + 1, closeParen - openParen - 1);
         std::vector<float> v;
         ParseNumberList(args.c_str(), v);
@@ -203,7 +202,6 @@ inline void ParseTransformString(const std::string& t, Gdiplus::Matrix& matrix) 
             float rad = v[0] * 3.14159265f / 180.0f;
             matrix.Shear(0, tan(rad), order);
         }
-
         pos = closeParen + 1;
     }
 }

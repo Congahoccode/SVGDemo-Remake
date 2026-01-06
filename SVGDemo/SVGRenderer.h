@@ -20,15 +20,13 @@ public:
 
     void SetBackgroundColor(const Color& color) { backgroundColor = color; }
     void Render(Graphics& g, const vector<SVGElement*>& elements);
-
     void Zoom(float factor);
     void Pan(float dx, float dy);
     void Rotate(float degrees);
-
     void AutoFit(int screenWidth, int screenHeight, const std::vector<SVGElement*>& elements);
     void FitViewBox(int screenWidth, int screenHeight, float vx, float vy, float vw, float vh);
-
-    void ResetTransform() {
+    void ResetTransform() 
+    {
         offset = PointF(0, 0);
         zoomFactor = 1.0f;
         rotationAngle = 0.0f;

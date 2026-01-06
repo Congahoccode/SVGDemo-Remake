@@ -29,6 +29,5 @@ public:
     static SVGElement* CreateElement(rapidxml::xml_node<>* node);
     const std::vector<SVGElement*>& GetElements() const { return elements; }
     const SVGDocument& GetDocument() const { return document; }
-
     void Clear();
 };
