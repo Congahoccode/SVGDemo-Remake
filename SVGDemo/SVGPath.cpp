@@ -9,6 +9,7 @@
 
 using namespace Gdiplus;
 using namespace std;
+using namespace rapidxml;
 
 static float GetNextNumber(const char*& ptr)
 {
@@ -79,7 +80,7 @@ static void AddArcToBezier(GraphicsPath& path, float x0, float y0, float rx, flo
     }
 }
 
-void SVGPath::Parse(rapidxml::xml_node<>* node)
+void SVGPath::Parse(xml_node<>* node)
 {
     // Gọi hàm Parse của lớp cha
     SVGElement::Parse(node);
@@ -91,7 +92,7 @@ void SVGPath::Parse(rapidxml::xml_node<>* node)
     path.SetFillMode(fillRule);
 
     // Lấy dữ liệu đường dẫn (path data)
-    rapidxml::xml_attribute<>* attr = node->first_attribute("d");
+    xml_attribute<>* attr = node->first_attribute("d");
     if (!attr) return;
 
     const char* ptr = attr->value();

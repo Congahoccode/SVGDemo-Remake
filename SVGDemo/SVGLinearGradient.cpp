@@ -8,8 +8,9 @@
 
 using namespace std;
 using namespace Gdiplus;
+using namespace rapidxml;
 
-void SVGLinearGradient::Parse(rapidxml::xml_node<>* node, SVGDocument* doc)
+void SVGLinearGradient::Parse(xml_node<>* node, SVGDocument* doc)
 {
     if (auto attr = node->first_attribute("id")) id = attr->value();
 

@@ -8,8 +8,9 @@
 
 using namespace std;
 using namespace Gdiplus;
+using namespace rapidxml;
 
-void SVGRadialGradient::Parse(rapidxml::xml_node<>* node, SVGDocument* doc)
+void SVGRadialGradient::Parse(xml_node<>* node, SVGDocument* doc)
 {
     if (auto attr = node->first_attribute("id")) id = attr->value();
     if (auto attr = node->first_attribute("cx")) cx = ParseUnit(attr->value()); else cx = 0.5f;
@@ -34,10 +35,7 @@ void SVGRadialGradient::Parse(rapidxml::xml_node<>* node, SVGDocument* doc)
     }
 
     // Parse Matrix
-    if (auto attr = node->first_attribute("gradientTransform")) 
-    {
-        ParseTransformString(attr->value(), transform);
-    }
+    if (auto attr = node->first_attribute("gradientTransform")) ParseTransformString(attr->value(), transform);
 
     // Parse Stops
     if (node->first_node("stop")) stops.clear();

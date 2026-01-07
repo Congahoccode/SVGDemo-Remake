@@ -8,19 +8,20 @@
 #include <vector>
 
 using namespace std;
+using namespace rapidxml;
 
-bool SVGParser::ParseFile(const std::string& filePath)
+bool SVGParser::ParseFile(const string& filePath)
 {
     // Dọn dẹp dữ liệu cũ (bao gồm cả doc.clear())
     Clear();
 
-    std::ifstream file(filePath);
+    ifstream file(filePath);
     if (!file.is_open()) return false;
 
     // Đọc toàn bộ file vào buffer
-    file.seekg(0, std::ios::end);
+    file.seekg(0, ios::end);
     size_t size = file.tellg();
-    file.seekg(0, std::ios::beg);
+    file.seekg(0, ios::beg);
 
     if (size == 0) return false;
 
@@ -32,14 +33,14 @@ bool SVGParser::ParseFile(const std::string& filePath)
     try 
     {
         // Parse XML (Sử dụng buffer vừa đọc)
-        doc.parse<rapidxml::parse_default>(&buffer[0]);
+        doc.parse<parse_default>(&buffer[0]);
     }
     catch (...)
     {
         return false;
     }
 
-    rapidxml::xml_node<>* root = doc.first_node("svg");
+    xml_node<>* root = doc.first_node("svg");
     if (!root) return false;
 
     // --- 1. Parse Header Info ---
@@ -47,8 +48,8 @@ bool SVGParser::ParseFile(const std::string& filePath)
     if (auto attr = root->first_attribute("height")) document.height = ParseUnit(attr->value());
 
     if (auto attr = root->first_attribute("viewBox")) {
-        std::string vb = attr->value();
-        std::vector<float> vals;
+        string vb = attr->value();
+        vector<float> vals;
         ParseNumberList(vb.c_str(), vals);
 
         if (vals.size() >= 4) {
@@ -66,7 +67,7 @@ bool SVGParser::ParseFile(const std::string& filePath)
     {
         for (auto* def = node->first_node(); def; def = def->next_sibling()) 
         {
-            std::string name = def->name();
+            string name = def->name();
             if (name == "linearGradient") 
             {
                 auto* grad = new SVGLinearGradient();
@@ -84,7 +85,7 @@ bool SVGParser::ParseFile(const std::string& filePath)
     // Tìm Gradient nằm ngoài (trực tiếp trong svg)
     for (auto* node = root->first_node(); node; node = node->next_sibling()) 
     {
-        std::string name = node->name();
+        string name = node->name();
         if (name == "linearGradient") 
         {
             auto* grad = new SVGLinearGradient();
@@ -119,9 +120,9 @@ bool SVGParser::ParseFile(const std::string& filePath)
     return true;
 }
 
-SVGElement* SVGParser::CreateElement(rapidxml::xml_node<>* node)
+SVGElement* SVGParser::CreateElement(xml_node<>* node)
 {
-    std::string name = node->name();
+    string name = node->name();
     if (name == "rect") return new SVGRect();
     if (name == "circle") return new SVGCircle();
     if (name == "ellipse") return new SVGEclipse();

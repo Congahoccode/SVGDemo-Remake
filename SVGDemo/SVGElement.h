@@ -9,10 +9,6 @@
 #include "rapidxml.hpp"
 #pragma warning(pop)
 
-using namespace std;
-using namespace rapidxml;
-using namespace Gdiplus;
-
 enum class FillType {
     None,
     Unset,
@@ -44,11 +40,11 @@ protected:
     FillType fillType = FillType::Unset;
     LineCap strokeLineCap;
     LineJoin strokeLineJoin;
-    string id;
-    string clipPathId;
+    std::string id;
+    std::string clipPathId;
 
 public:
-    string href;
+    std::string href;
 
 protected:
     Gdiplus::FillMode fillRule = Gdiplus::FillModeWinding;
@@ -63,7 +59,7 @@ public:
     void SetDocument(SVGDocument* doc) { document = doc; }
 
     // Getter ID
-    string GetId() const { return id; }
+    std::string GetId() const { return id; }
 
     virtual void InheritFrom(const SVGElement& parent);
     virtual void Parse(rapidxml::xml_node<>* node);
@@ -71,7 +67,7 @@ public:
     virtual Gdiplus::RectF GetBoundingBox() = 0;
     virtual GraphicsPath* GetGraphicsPath() { return nullptr; }
 
-    void ParseFillValue(const string& value);
-    void ParseStrokeValue(const string& value);
-    void ParseTransform(const string& value);
+    void ParseFillValue(const std::string& value);
+    void ParseStrokeValue(const std::string& value);
+    void ParseTransform(const std::string& value);
 };

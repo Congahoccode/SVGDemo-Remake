@@ -5,6 +5,7 @@
 
 using namespace Gdiplus;
 using namespace std;
+using namespace rapidxml;
 
 // Chuẩn hóa khoảng trắng trong chuỗi
 static string NormalizeWhitespace(const string& s)
@@ -36,7 +37,7 @@ static string NormalizeWhitespace(const string& s)
 }
 
 
-void SVGText::Parse(rapidxml::xml_node<>* node)
+void SVGText::Parse(xml_node<>* node)
 {
     // Parse fill, stroke, transform
     SVGElement::Parse(node);
@@ -77,7 +78,7 @@ void SVGText::Parse(rapidxml::xml_node<>* node)
     content = wstring(norm.begin(), norm.end());
 }
 
-void SVGText::Draw(Gdiplus::Graphics& g)
+void SVGText::Draw(Graphics& g)
 {
     if (content.empty()) return;
 
@@ -142,7 +143,7 @@ void SVGText::Draw(Gdiplus::Graphics& g)
     g.Restore(state);
 }
 
-Gdiplus::RectF SVGText::GetBoundingBox()
+RectF SVGText::GetBoundingBox()
 {
     if (content.empty()) return RectF(0, 0, 0, 0);
     HDC hdc = GetDC(NULL);

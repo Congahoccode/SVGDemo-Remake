@@ -7,6 +7,7 @@
 
 using namespace std;
 using namespace Gdiplus;
+using namespace rapidxml;
 
 static void GetPoints(const string& s, vector<PointF>& points)
 {
@@ -22,7 +23,7 @@ static void GetPoints(const string& s, vector<PointF>& points)
     }
 }
 
-void SVGPolygon::Parse(rapidxml::xml_node<>* node)
+void SVGPolygon::Parse(xml_node<>* node)
 {
     SVGElement::Parse(node);
 

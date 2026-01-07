@@ -4,6 +4,7 @@
 #include <gdiplus.h>
 
 using namespace Gdiplus;
+using namespace std;
 
 MainApp::MainApp()
 {
@@ -32,14 +33,14 @@ void MainApp::Clear()
     needsAutoFit = false;
 }
 
-bool MainApp::LoadSVG(const std::string& filePath)
+bool MainApp::LoadSVG(const string& filePath)
 {
     Clear();
     if (!parser) parser = new SVGParser();
     bool ok = parser->ParseFile(filePath);
     if (!ok)
     {
-        std::wstring wFilePath(filePath.begin(), filePath.end());
+        wstring wFilePath(filePath.begin(), filePath.end());
         return false;
     }
     needsAutoFit = true;

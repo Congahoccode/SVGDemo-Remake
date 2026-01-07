@@ -17,7 +17,7 @@ void SVGLine::Parse(xml_node<>* node)
     if (auto a = node->first_attribute("y2")) y2 = ParseUnit(a->value());
 }
 
-void SVGLine::Draw(Gdiplus::Graphics& g)
+void SVGLine::Draw(Graphics& g)
 {
     auto state = g.Save();
     g.MultiplyTransform(&transform);
@@ -31,7 +31,7 @@ void SVGLine::Draw(Gdiplus::Graphics& g)
     g.Restore(state);
 }
 
-Gdiplus::RectF SVGLine::GetBoundingBox()
+RectF SVGLine::GetBoundingBox()
 {
     float minX = min(x1, x2);
     float minY = min(y1, y2);
@@ -40,5 +40,5 @@ Gdiplus::RectF SVGLine::GetBoundingBox()
 
     if (h < 0.1f) h = 0.1f;
 
-    return Gdiplus::RectF(minX, minY, w, h);
+    return RectF(minX, minY, w, h);
 }

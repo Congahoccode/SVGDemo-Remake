@@ -4,6 +4,8 @@
 #include "SVGRadialGradient.h"
 #include "SVGElement.h"
 
+using namespace std;
+
 SVGDocument::~SVGDocument()
 {
     Clear();
@@ -17,7 +19,7 @@ void SVGDocument::AddLinearGradient(SVGLinearGradient* g)
     linearGradients[g->GetId()] = g;
 }
 
-SVGLinearGradient* SVGDocument::GetLinearGradient(const std::string& id)
+SVGLinearGradient* SVGDocument::GetLinearGradient(const string& id)
 {
     auto it = linearGradients.find(id);
     return (it != linearGradients.end()) ? it->second : nullptr;
@@ -31,19 +33,19 @@ void SVGDocument::AddRadialGradient(SVGRadialGradient* gradient)
     radialGradients[gradient->GetId()] = gradient;
 }
 
-SVGRadialGradient* SVGDocument::GetRadialGradient(const std::string& id)
+SVGRadialGradient* SVGDocument::GetRadialGradient(const string& id)
 {
     auto it = radialGradients.find(id);
     return (it != radialGradients.end()) ? it->second : nullptr;
 }
 
-void SVGDocument::RegisterElement(const std::string& id, SVGElement* element)
+void SVGDocument::RegisterElement(const string& id, SVGElement* element)
 {
     if (id.empty() || !element) return;
     elementMap[id] = element;
 }
 
-SVGElement* SVGDocument::GetElementById(const std::string& id)
+SVGElement* SVGDocument::GetElementById(const string& id)
 {
     auto it = elementMap.find(id);
     return (it != elementMap.end()) ? it->second : nullptr;

@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace Gdiplus;
+using namespace rapidxml;
 
 // Constructor
 SVGElement::SVGElement()

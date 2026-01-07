@@ -2,7 +2,10 @@
 #include "SVGCircle.h"
 #include "SVGHelper.h"
 
-void SVGCircle::Parse(rapidxml::xml_node<>* node)
+using namespace Gdiplus;
+using namespace rapidxml;
+
+void SVGCircle::Parse(xml_node<>* node)
 {
     SVGElement::Parse(node);
     if (auto attr = node->first_attribute("cx")) cx = ParseUnit(attr->value());
@@ -10,15 +13,15 @@ void SVGCircle::Parse(rapidxml::xml_node<>* node)
     if (auto attr = node->first_attribute("r"))  r = ParseUnit(attr->value());
 }
 
-void SVGCircle::Draw(Gdiplus::Graphics& g)
+void SVGCircle::Draw(Graphics& g)
 {
     if (r <= 0) return;
-    g.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
-    g.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHighQuality);
-    Gdiplus::GraphicsState state = g.Save();
+    g.SetSmoothingMode(SmoothingModeHighQuality);
+    g.SetPixelOffsetMode(PixelOffsetModeHighQuality);
+    GraphicsState state = g.Save();
     ApplyClip(g);
     g.MultiplyTransform(&transform);
-    Gdiplus::RectF bounds(cx - r, cy - r, 2 * r, 2 * r);
+    RectF bounds(cx - r, cy - r, 2 * r, 2 * r);
     if (auto* brush = CreateFillBrush(bounds)) 
     {
         g.FillEllipse(brush, bounds);
@@ -32,7 +35,7 @@ void SVGCircle::Draw(Gdiplus::Graphics& g)
     g.Restore(state);
 }
 
-Gdiplus::RectF SVGCircle::GetBoundingBox()
+RectF SVGCircle::GetBoundingBox()
 {
-    return Gdiplus::RectF(cx - r, cy - r, 2 * r, 2 * r);
+    return RectF(cx - r, cy - r, 2 * r, 2 * r);
 }

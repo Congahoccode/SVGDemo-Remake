@@ -18,5 +18,4 @@ public:
         if (!transform.IsIdentity()) path->Transform(&transform);
         return path;
     }
-
 };

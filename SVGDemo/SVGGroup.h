@@ -4,8 +4,10 @@
 #include <vector>
 #include <string>
 #include <gdiplus.h>
+
 using namespace Gdiplus;
 using namespace std;
+using namespace rapidxml;
 
 class SVGParser;
 

@@ -4,9 +4,6 @@
 #include <vector>
 #include <gdiplus.h>
 
-using namespace Gdiplus;
-using namespace std;
-
 class SVGDocument;
 struct SVGGradientStop
 {
@@ -17,21 +14,21 @@ struct SVGGradientStop
 class SVGLinearGradient
 {
 private:
-    string id;
+    std::string id;
     float x1 = 0, y1 = 0;
     float x2 = 1, y2 = 0;
     bool userSpace = false;
-    vector<SVGGradientStop> stops;
+    std::vector<SVGGradientStop> stops;
     Matrix transform;
 
 public:
     SVGLinearGradient() { transform.Reset(); }
 
-    void SetId(const string& _id) { id = _id; }
-    const string& GetId() const { return id; }
+    void SetId(const std::string& _id) { id = _id; }
+    const std::string& GetId() const { return id; }
 
     void Parse(rapidxml::xml_node<>* node, SVGDocument* doc);
 
     LinearGradientBrush* CreateBrush(const RectF& bounds) const;
-    const vector<SVGGradientStop>& GetStops() const { return stops; }
+    const std::vector<SVGGradientStop>& GetStops() const { return stops; }
 };

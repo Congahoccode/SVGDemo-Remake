@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "SVGHandler.h"
 
+using namespace Gdiplus;
+
 void SVGHandler::OnMouseUp(int button) 
 {
 	if (button == 0) isPanning = false; // Left mouse button
@@ -17,7 +19,7 @@ bool SVGHandler::OnMouseWheel(int delta, bool ctrlDown)
 	return false;
 }
 
-void SVGHandler::OnMouseDown(const Gdiplus::PointF& pos, int button) 
+void SVGHandler::OnMouseDown(const PointF& pos, int button) 
 {
 	if (button == 0) 
 	{								// Left button
@@ -27,7 +29,7 @@ void SVGHandler::OnMouseDown(const Gdiplus::PointF& pos, int button)
 	}
 }
 
-bool SVGHandler::OnMouseMove(const Gdiplus::PointF& pos) 
+bool SVGHandler::OnMouseMove(const PointF& pos) 
 {
 	if (isPanning) 
 	{

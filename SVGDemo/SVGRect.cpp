@@ -3,7 +3,10 @@
 #include "SVGHelper.h"
 #include <string>
 
-void SVGRect::Parse(rapidxml::xml_node<>* node)
+using namespace Gdiplus;
+using namespace rapidxml;
+
+void SVGRect::Parse(xml_node<>* node)
 {
     SVGElement::Parse(node);
     if (auto a = node->first_attribute("x")) x = ParseUnit(a->value());
@@ -12,7 +15,7 @@ void SVGRect::Parse(rapidxml::xml_node<>* node)
     if (auto a = node->first_attribute("height")) height = ParseUnit(a->value());
 }
 
-void SVGRect::Draw(Gdiplus::Graphics& g)
+void SVGRect::Draw(Graphics& g)
 {
     auto state = g.Save();
     ApplyClip(g);
@@ -36,9 +39,9 @@ void SVGRect::Draw(Gdiplus::Graphics& g)
     g.Restore(state);
 }
 
-Gdiplus::RectF SVGRect::GetBoundingBox()
+RectF SVGRect::GetBoundingBox()
 {
-    return Gdiplus::RectF(x, y, width, height);
+    return RectF(x, y, width, height);
 }
 
 GraphicsPath* SVGRect::GetGraphicsPath() 

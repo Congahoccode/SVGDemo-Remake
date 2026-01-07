@@ -6,8 +6,6 @@
 #include "rapidxml.hpp"
 #include <gdiplus.h>
 
-using namespace Gdiplus;
-
 class SVGRadialGradient
 {
 private:
